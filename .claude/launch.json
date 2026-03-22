@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Frontend (Vite / Vue 3)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["frontend/node_modules/vite/bin/vite.js", "--config", "frontend/vite.config.js", "--host"],
+      "port": 4435
+    },
+    {
+      "name": "Backend (ASP.NET Core API)",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "backend/ArtPlatform.API"],
+      "port": 5567
+    }
+  ]
+}

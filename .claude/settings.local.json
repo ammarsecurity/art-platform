@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(dotnet build:*)",
+      "Bash(timeout 8 dotnet run --project backend/ArtPlatform.API)",
+      "Bash(timeout 12 dotnet run --project backend/ArtPlatform.API)",
+      "Bash(dotnet ef:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5567/api/categories)",
+      "Bash(gh auth:*)"
+    ]
+  }
+}
