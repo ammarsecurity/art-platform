@@ -10,7 +10,7 @@
           <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center shadow-lg shadow-gold/30">
             <span class="text-dark font-bold text-lg">ف</span>
           </div>
-          <span class="text-xl font-bold text-white group-hover:text-gold transition-colors">منصة الفن</span>
+          <span class="text-xl font-bold text-white group-hover:text-gold transition-colors">منصة مرتضى ثامر</span>
         </RouterLink>
 
         <!-- Desktop Links -->

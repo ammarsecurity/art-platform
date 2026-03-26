@@ -31,6 +31,8 @@
             <span class="text-gold font-semibold">{{ course.price === 0 ? 'مجاني' : `${course.price} ر.س` }}</span>
           </div>
           <div class="flex gap-2">
+            <RouterLink :to="`/admin/courses/${course.id}/lessons`"
+              class="flex-1 py-2 text-center text-sm bg-gold/20 hover:bg-gold/30 text-gold rounded-lg transition-colors">الدروس</RouterLink>
             <RouterLink :to="`/admin/courses/${course.id}/edit`"
               class="flex-1 py-2 text-center text-sm bg-dark-300 hover:bg-dark-200 text-white rounded-lg transition-colors">تعديل</RouterLink>
             <button @click="handleDelete(course.id)"

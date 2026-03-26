@@ -129,7 +129,7 @@ async function fetchArtworks() {
     const res = await artworkApi.getAll({
       page: page.value, pageSize: 15,
       search: search.value,
-      status: statusFilter.value || undefined,
+      status: statusFilter.value || 'all',
       categoryId: categoryFilter.value || undefined,
     })
     artworks.value = res.data.items

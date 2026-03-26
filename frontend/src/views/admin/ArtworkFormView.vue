@@ -122,11 +122,13 @@ onMounted(async () => {
   categories.value = res.data
 
   if (isEdit.value) {
-    const artRes = await artworkApi.getBySlug(route.params.id)
-    const a = artRes.data
-    Object.assign(form, { title: a.title, description: a.description, medium: a.medium, dimensions: a.dimensions, year: a.year, categoryId: a.categoryId, isFeatured: a.isFeatured, status: a.status })
-    tagsInput.value = a.tags?.join(' ') || ''
-    previewUrl.value = a.imageUrl
+    try {
+      const artRes = await artworkApi.getById(route.params.id)
+      const a = artRes.data
+      Object.assign(form, { title: a.title, description: a.description, medium: a.medium, dimensions: a.dimensions, year: a.year, categoryId: a.categoryId, isFeatured: a.isFeatured, status: a.status })
+      tagsInput.value = a.tags?.join(' ') || ''
+      previewUrl.value = a.imageUrl
+    } catch { /* backend offline */ }
   }
 })
 

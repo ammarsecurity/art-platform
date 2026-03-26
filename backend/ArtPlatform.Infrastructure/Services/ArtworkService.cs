@@ -32,9 +32,14 @@ public class ArtworkService : IArtworkService
         if (!string.IsNullOrWhiteSpace(request.Search))
             query = query.Where(a => a.Title.Contains(request.Search) || (a.Description != null && a.Description.Contains(request.Search)));
 
-        if (!string.IsNullOrWhiteSpace(request.Status) && Enum.TryParse<ArtworkStatus>(request.Status, out var status))
-            query = query.Where(a => a.Status == status);
-        else
+        if (!string.IsNullOrWhiteSpace(request.Status) && request.Status != "all")
+        {
+            if (Enum.TryParse<ArtworkStatus>(request.Status, out var status))
+                query = query.Where(a => a.Status == status);
+            else
+                query = query.Where(a => a.Status == ArtworkStatus.Published);
+        }
+        else if (string.IsNullOrWhiteSpace(request.Status))
             query = query.Where(a => a.Status == ArtworkStatus.Published);
 
         if (request.IsFeatured.HasValue)

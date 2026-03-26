@@ -89,6 +89,9 @@ const navItems = [
   { to: '/admin/blog', icon: '✍️', label: 'المدونة' },
   { to: '/admin/categories', icon: '🏷️', label: 'التصنيفات' },
   { to: '/admin/users', icon: '👥', label: 'المستخدمون' },
+  { to: '/admin/testimonials', icon: '💬', label: 'آراء الطلاب' },
+  { to: '/admin/contact-settings', icon: '📬', label: 'معلومات التواصل' },
+  { to: '/admin/site-settings', icon: '⚙️', label: 'إعدادات الموقع' },
   { to: '/admin/messages', icon: '📨', label: 'الرسائل' },
   { to: '/admin/pages', icon: '📄', label: 'الصفحات القانونية' },
 ]

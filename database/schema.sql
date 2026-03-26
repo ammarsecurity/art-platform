@@ -1,5 +1,5 @@
 -- ============================================
--- منصة الفن - Art Platform Database Schema
+-- منصة مرتضى ثامر - Art Platform Database Schema
 -- MySQL 8.0+ | UTF8MB4 (full Arabic support)
 -- ============================================
 
@@ -221,7 +221,7 @@ CREATE TABLE site_settings (
 -- Seed Data
 -- ==========================================
 INSERT INTO site_settings (`key`, value, description) VALUES
-('site_name',         'منصة الفن',                       'اسم الموقع'),
+('site_name',         'منصة مرتضى ثامر',                       'اسم الموقع'),
 ('site_description',  'منصة للفنون والتعلم',              'وصف الموقع'),
 ('contact_email',     'info@artplatform.com',             'بريد التواصل'),
 ('hero_title',        'استكشف عالم الفن',                 'عنوان البانر الرئيسي'),

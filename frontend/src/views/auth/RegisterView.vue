@@ -6,7 +6,7 @@
           <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center shadow-lg shadow-gold/30">
             <span class="text-dark font-bold text-xl">ف</span>
           </div>
-          <span class="text-2xl font-bold text-white">منصة الفن</span>
+          <span class="text-2xl font-bold text-white">منصة مرتضى ثامر</span>
         </RouterLink>
         <h1 class="text-3xl font-bold text-white">إنشاء حساب جديد</h1>
         <p class="text-gray-400 mt-2">انضم إلى مجتمع الفنانين</p>
@@ -20,7 +20,7 @@
           </div>
           <div>
             <label class="block text-sm text-gray-400 mb-2">رقم الهاتف *</label>
-            <input v-model="form.phone" type="tel" class="input-field" placeholder="05xxxxxxxx" required dir="ltr">
+            <input v-model="form.phone" type="tel" class="input-field" placeholder="078xxxxxxxx" required dir="ltr">
           </div>
           <div>
             <label class="block text-sm text-gray-400 mb-2">كلمة المرور *</label>

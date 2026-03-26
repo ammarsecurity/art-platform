@@ -33,10 +33,18 @@ public class CourseService : ICourseService
         if (!string.IsNullOrWhiteSpace(request.Search))
             query = query.Where(c => c.Title.Contains(request.Search));
 
-        if (!string.IsNullOrWhiteSpace(request.Status) && Enum.TryParse<CourseStatus>(request.Status, out var status))
-            query = query.Where(c => c.Status == status);
-        else
+        if (!string.IsNullOrWhiteSpace(request.Status) && request.Status != "all")
+        {
+            if (Enum.TryParse<CourseStatus>(request.Status, out var status))
+                query = query.Where(c => c.Status == status);
+            else
+                query = query.Where(c => c.Status == CourseStatus.Published);
+        }
+        else if (string.IsNullOrWhiteSpace(request.Status))
             query = query.Where(c => c.Status == CourseStatus.Published);
+
+        if (!string.IsNullOrWhiteSpace(request.Level) && Enum.TryParse<CourseLevel>(request.Level, out var level))
+            query = query.Where(c => c.Level == level);
 
         if (request.IsFeatured.HasValue)
             query = query.Where(c => c.IsFeatured == request.IsFeatured.Value);
@@ -60,6 +68,7 @@ public class CourseService : ICourseService
         var items = courses.Select(c => new CourseDto
         {
             Id = c.Id, Title = c.Title, Slug = c.Slug,
+            Description = c.Description,
             ShortDescription = c.ShortDescription, ThumbnailUrl = c.ThumbnailUrl,
             PreviewVideoUrl = c.PreviewVideoUrl, Price = c.Price,
             DurationMinutes = c.DurationMinutes, Level = c.Level.ToString(),
@@ -130,6 +139,8 @@ public class CourseService : ICourseService
         var thumbnailUrl = thumbnail != null ? await _fileService.UploadImageAsync(thumbnail, "courses") : null;
         var level = Enum.TryParse<CourseLevel>(request.Level, out var l) ? l : CourseLevel.Beginner;
 
+        var courseStatus = Enum.TryParse<CourseStatus>(request.Status, out var cs) ? cs : CourseStatus.Draft;
+
         var course = new Course
         {
             Title = request.Title, Slug = slug,
@@ -137,17 +148,21 @@ public class CourseService : ICourseService
             ThumbnailUrl = thumbnailUrl, PreviewVideoUrl = request.PreviewVideoUrl,
             Price = request.Price, Level = level,
             IsFeatured = request.IsFeatured, CategoryId = request.CategoryId,
-            Status = CourseStatus.Draft
+            Status = courseStatus
         };
 
         _context.Courses.Add(course);
         await _context.SaveChangesAsync();
-        return (await GetCoursesAsync(new ArtworkListRequest { Status = "Draft" })).Items.First(c => c.Id == course.Id);
+        return (await GetCoursesAsync(new ArtworkListRequest { Status = "all" })).Items.First(c => c.Id == course.Id);
     }
 
     public async Task<CourseDto?> UpdateCourseAsync(int id, CreateCourseRequest request, IFormFile? thumbnail)
     {
-        var course = await _context.Courses.FindAsync(id);
+        var course = await _context.Courses
+            .Include(c => c.Category)
+            .Include(c => c.Lessons)
+            .Include(c => c.Enrollments)
+            .FirstOrDefaultAsync(c => c.Id == id);
         if (course == null) return null;
 
         if (thumbnail != null)
@@ -165,8 +180,23 @@ public class CourseService : ICourseService
         if (Enum.TryParse<CourseLevel>(request.Level, out var level))
             course.Level = level;
 
+        if (Enum.TryParse<CourseStatus>(request.Status, out var status))
+            course.Status = status;
+
         await _context.SaveChangesAsync();
-        return (await GetCourseBySlugAsync(course.Slug)) as CourseDto;
+
+        return new CourseDto
+        {
+            Id = course.Id, Title = course.Title, Slug = course.Slug,
+            ShortDescription = course.ShortDescription, ThumbnailUrl = course.ThumbnailUrl,
+            PreviewVideoUrl = course.PreviewVideoUrl, Price = course.Price,
+            DurationMinutes = course.DurationMinutes, Level = course.Level.ToString(),
+            Status = course.Status.ToString(), IsFeatured = course.IsFeatured,
+            CategoryId = course.CategoryId, CategoryName = course.Category?.Name ?? "",
+            LessonCount = course.Lessons.Count(l => l.IsActive),
+            EnrollmentCount = course.Enrollments.Count,
+            CreatedAt = course.CreatedAt
+        };
     }
 
     public async Task<bool> DeleteCourseAsync(int id)
@@ -230,6 +260,44 @@ public class CourseService : ICourseService
             if (enrollment.ProgressPercent == 100) enrollment.CompletedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task<List<AdminLessonDto>> GetLessonsAsync(int courseId)
+    {
+        return await _context.Lessons
+            .Where(l => l.CourseId == courseId)
+            .OrderBy(l => l.SortOrder)
+            .Select(l => new AdminLessonDto
+            {
+                Id = l.Id, Title = l.Title, Description = l.Description,
+                VideoUrl = l.VideoUrl, DurationMinutes = l.DurationMinutes,
+                SortOrder = l.SortOrder, IsPreview = l.IsPreview,
+                IsActive = l.IsActive, CreatedAt = l.CreatedAt
+            })
+            .ToListAsync();
+    }
+
+    public async Task<AdminLessonDto?> UpdateLessonAsync(int id, UpdateLessonRequest request)
+    {
+        var lesson = await _context.Lessons.FindAsync(id);
+        if (lesson == null) return null;
+
+        lesson.Title = request.Title;
+        lesson.Description = request.Description;
+        lesson.VideoUrl = request.VideoUrl;
+        lesson.DurationMinutes = request.DurationMinutes;
+        lesson.SortOrder = request.SortOrder;
+        lesson.IsPreview = request.IsPreview;
+
+        await _context.SaveChangesAsync();
+
+        return new AdminLessonDto
+        {
+            Id = lesson.Id, Title = lesson.Title, Description = lesson.Description,
+            VideoUrl = lesson.VideoUrl, DurationMinutes = lesson.DurationMinutes,
+            SortOrder = lesson.SortOrder, IsPreview = lesson.IsPreview,
+            IsActive = lesson.IsActive, CreatedAt = lesson.CreatedAt
+        };
     }
 
     public async Task<LessonDto> AddLessonAsync(CreateLessonRequest request)

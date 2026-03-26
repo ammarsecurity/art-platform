@@ -17,7 +17,7 @@
         </div>
         <div class="flex-1 overflow-y-auto">
           <div v-if="loading" class="p-6 text-center text-gray-500">جارٍ التحميل...</div>
-          <div v-for="msg in messages" :key="msg.id"
+          <div v-for="msg in filteredMessages" :key="msg.id"
             @click="selectMessage(msg)"
             class="p-4 border-b border-dark-300 cursor-pointer transition-colors hover:bg-dark-200"
             :class="selected?.id === msg.id ? 'bg-dark-200 border-r-2 border-r-gold' : ''">
@@ -90,6 +90,9 @@ const loading = ref(false)
 const filter = ref('all')
 
 const unreadCount = computed(() => messages.value.filter(m => !m.isRead).length)
+const filteredMessages = computed(() =>
+  filter.value === 'unread' ? messages.value.filter(m => !m.isRead) : messages.value
+)
 
 onMounted(fetchMessages)
 

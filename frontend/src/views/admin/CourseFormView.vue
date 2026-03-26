@@ -58,6 +58,13 @@
             </select>
           </div>
           <div>
+            <label class="block text-sm text-gray-400 mb-2">الحالة</label>
+            <select v-model="form.status" class="input-field">
+              <option value="Draft">مسودة</option>
+              <option value="Published">منشور</option>
+            </select>
+          </div>
+          <div>
             <label class="block text-sm text-gray-400 mb-2">السعر (0 = مجاني)</label>
             <input v-model.number="form.price" type="number" class="input-field" min="0" step="0.01">
           </div>
@@ -90,11 +97,30 @@ const thumbFile = ref(null)
 const previewUrl = ref(null)
 const thumbInput = ref(null)
 
-const form = reactive({ title: '', shortDescription: '', description: '', previewVideoUrl: '', categoryId: '', level: 'Beginner', price: 0, isFeatured: false })
+const form = reactive({ title: '', shortDescription: '', description: '', previewVideoUrl: '', categoryId: '', level: 'Beginner', status: 'Draft', price: 0, isFeatured: false })
 
 onMounted(async () => {
   const res = await categoryApi.getAll()
   categories.value = res.data
+
+  if (isEdit.value) {
+    try {
+      const courses = await courseApi.getAll({ page: 1, pageSize: 100, status: 'all' })
+      const course = courses.data?.items?.find(c => c.id === Number(route.params.id))
+      if (course) {
+        form.title = course.title
+        form.shortDescription = course.shortDescription || ''
+        form.description = course.description || ''
+        form.previewVideoUrl = course.previewVideoUrl || ''
+        form.categoryId = course.categoryId
+        form.level = course.level
+        form.status = course.status
+        form.price = course.price
+        form.isFeatured = course.isFeatured
+        previewUrl.value = course.thumbnailUrl || null
+      }
+    } catch { /* backend may be offline */ }
+  }
 })
 
 async function handleSubmit() {

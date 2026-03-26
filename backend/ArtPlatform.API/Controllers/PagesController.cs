@@ -35,6 +35,30 @@ public class PagesController : ControllerBase
 
         return Ok(new { success = true, message = "تم تحديث الصفحة بنجاح" });
     }
+
+    /// <summary>جلب جميع الإعدادات كـ key-value map (public)</summary>
+    [HttpGet("~/api/settings")]
+    public async Task<IActionResult> GetAllSettings()
+    {
+        var settings = await _context.SiteSettings.ToListAsync();
+        var map = settings.ToDictionary(s => s.Key, s => s.Value);
+        return Ok(new { success = true, data = map });
+    }
+
+    /// <summary>تحديث مجموعة إعدادات دفعة واحدة (Admin فقط)</summary>
+    [HttpPut("~/api/settings/bulk")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> BulkUpdateSettings([FromBody] Dictionary<string, string> updates)
+    {
+        var keys = updates.Keys.ToList();
+        var settings = await _context.SiteSettings.Where(s => keys.Contains(s.Key)).ToListAsync();
+        foreach (var setting in settings)
+            if (updates.TryGetValue(setting.Key, out var value))
+                setting.Value = value;
+
+        await _context.SaveChangesAsync();
+        return Ok(new { success = true, message = "تم حفظ الإعدادات بنجاح" });
+    }
 }
 
 public class UpdatePageRequest

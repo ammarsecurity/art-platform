@@ -148,6 +148,61 @@ public class AuthService : IAuthService
         }).ToList();
     }
 
+    public async Task<PagedResult<UserDto>> GetUsersAsync(int page, int pageSize, string? search)
+    {
+        var query = _context.Users
+            .Include(u => u.Enrollments)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(u => u.Name.Contains(search) || u.Phone.Contains(search));
+
+        var total = await query.CountAsync();
+        var users = await query
+            .OrderByDescending(u => u.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var items = users.Select(u => new UserDto
+        {
+            Id = u.Id, Name = u.Name, Phone = u.Phone,
+            Role = u.Role.ToString(), AvatarUrl = u.AvatarUrl,
+            Bio = u.Bio, IsActive = u.IsActive,
+            EnrollmentCount = u.Enrollments.Count,
+            CreatedAt = u.CreatedAt
+        }).ToList();
+
+        return new PagedResult<UserDto> { Items = items, TotalCount = total, Page = page, PageSize = pageSize };
+    }
+
+    public async Task<UserDto?> UpdateUserRoleAsync(int userId, string role)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return null;
+
+        if (!Enum.TryParse<UserRole>(role, out var newRole))
+            throw new ArgumentException("دور غير صالح");
+
+        user.Role = newRole;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        return new UserDto { Id = user.Id, Name = user.Name, Phone = user.Phone, Role = user.Role.ToString(), IsActive = user.IsActive, CreatedAt = user.CreatedAt };
+    }
+
+    public async Task<UserDto?> ToggleUserStatusAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return null;
+
+        user.IsActive = !user.IsActive;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        return new UserDto { Id = user.Id, Name = user.Name, Phone = user.Phone, Role = user.Role.ToString(), IsActive = user.IsActive, CreatedAt = user.CreatedAt };
+    }
+
     private AuthResponse GenerateTokens(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));

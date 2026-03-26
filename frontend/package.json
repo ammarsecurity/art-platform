@@ -1,7 +1,7 @@
 {
   "name": "art-platform-frontend",
   "version": "1.0.0",
-  "description": "منصة الفن - موقع فني عربي احترافي",
+  "description": "منصة مرتضى ثامر - موقع فني عربي احترافي",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
