@@ -26,9 +26,14 @@ public class BlogService : IBlogService
         if (!string.IsNullOrWhiteSpace(request.Search))
             query = query.Where(p => p.Title.Contains(request.Search));
 
-        if (!string.IsNullOrWhiteSpace(request.Status) && Enum.TryParse<PostStatus>(request.Status, out var status))
-            query = query.Where(p => p.Status == status);
-        else
+        if (!string.IsNullOrWhiteSpace(request.Status) && request.Status != "all")
+        {
+            if (Enum.TryParse<PostStatus>(request.Status, out var status))
+                query = query.Where(p => p.Status == status);
+            else
+                query = query.Where(p => p.Status == PostStatus.Published);
+        }
+        else if (string.IsNullOrWhiteSpace(request.Status))
             query = query.Where(p => p.Status == PostStatus.Published);
 
         if (request.IsFeatured.HasValue)
@@ -48,6 +53,12 @@ public class BlogService : IBlogService
             }).ToListAsync();
 
         return new PagedResult<BlogPostDto> { Items = items, TotalCount = total, Page = request.Page, PageSize = request.PageSize };
+    }
+
+    public async Task<BlogPostDetailDto?> GetPostByIdAsync(int id)
+    {
+        var post = await _context.BlogPosts.FindAsync(id);
+        return post == null ? null : MapToDetailDto(post);
     }
 
     public async Task<BlogPostDetailDto?> GetPostBySlugAsync(string slug)

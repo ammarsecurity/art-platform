@@ -28,6 +28,15 @@ public class BlogController : ControllerBase
                             : Ok(new { success = true, data = post });
     }
 
+    [HttpGet("{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var post = await _blogService.GetPostByIdAsync(id);
+        return post == null ? NotFound(new { success = false, message = "المقال غير موجود" })
+                            : Ok(new { success = true, data = post });
+    }
+
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromForm] CreateBlogPostRequest request, IFormFile? image)

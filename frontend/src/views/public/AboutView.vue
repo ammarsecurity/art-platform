@@ -9,10 +9,10 @@
             قصة الإبداع <br><span class="text-gradient">والشغف بالفن</span>
           </h1>
           <p class="text-gray-400 text-lg leading-relaxed mb-6">
-            بدأت رحلتي مع الفن منذ أكثر من 15 عاماً، عندما اكتشفت أن اللوحة البيضاء هي أفضل صديق يمكنك أن تجد.
+            {{ s('about_bio_1', 'بدأت رحلتي مع الفن منذ أكثر من 15 عاماً، عندما اكتشفت أن اللوحة البيضاء هي أفضل صديق يمكنك أن تجد.') }}
           </p>
           <p class="text-gray-400 text-lg leading-relaxed mb-8">
-            درست الفنون الجميلة وتخصصت في الرسم الزيتي والفن الرقمي، ثم انتقلت إلى تعليم الفن للأجيال الجديدة.
+            {{ s('about_bio_2', 'درست الفنون الجميلة وتخصصت في الرسم الزيتي والفن الرقمي، ثم انتقلت إلى تعليم الفن للأجيال الجديدة.') }}
           </p>
           <div class="flex flex-wrap gap-4">
             <RouterLink to="/portfolio" class="btn-primary">🖼️ شاهد أعمالي</RouterLink>
@@ -21,10 +21,10 @@
         </div>
         <div class="relative">
           <div class="aspect-[4/5] rounded-3xl overflow-hidden">
-            <img src="https://picsum.photos/400/500?grayscale" alt="الفنان" class="w-full h-full object-cover">
+            <img :src="s('artist_image_url', 'https://picsum.photos/400/500?grayscale')" alt="الفنان" class="w-full h-full object-cover">
           </div>
           <div class="absolute -bottom-6 -right-6 card p-5">
-            <div class="text-3xl font-bold text-gold">15+</div>
+            <div class="text-3xl font-bold text-gold">{{ s('about_experience', '15+') }}</div>
             <div class="text-gray-400 text-sm">سنة خبرة</div>
           </div>
         </div>
@@ -67,16 +67,26 @@
 </template>
 
 <script setup>
-const skills = [
+import { computed, onMounted } from 'vue'
+import { useSiteSettings } from '@/composables/useSiteSettings'
+
+const { fetchSettings, get: s, getJson } = useSiteSettings()
+
+onMounted(() => fetchSettings())
+
+const defaultSkills = [
   { icon: '🖌️', name: 'رسم زيتي', level: 95 },
   { icon: '💻', name: 'فن رقمي', level: 88 },
   { icon: '📷', name: 'تصوير', level: 75 },
   { icon: '✏️', name: 'رسم يدوي', level: 92 },
 ]
 
-const awards = [
+const defaultAwards = [
   { title: 'أفضل فنان عربي', org: 'مهرجان الفنون العربية', year: '2024' },
   { title: 'جائزة الإبداع', org: 'وزارة الثقافة', year: '2023' },
   { title: 'المعلم المميز', org: 'منصة تعليمية دولية', year: '2022' },
 ]
+
+const skills = computed(() => getJson('about_skills', defaultSkills))
+const awards = computed(() => getJson('about_awards', defaultAwards))
 </script>

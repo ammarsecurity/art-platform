@@ -83,7 +83,7 @@
         <div>
           <h3 class="text-white font-semibold mb-4">تابعني على منصات التواصل</h3>
           <div class="flex gap-3">
-            <a v-for="s in socials" :key="s.name" href="#"
+            <a v-for="s in socials" :key="s.name" :href="s.href" target="_blank" rel="noopener"
               class="px-4 py-2 rounded-lg card hover:border-gold/40 transition-all text-sm text-gray-400 hover:text-gold">
               {{ s.icon }} {{ s.name }}
             </a>
@@ -95,26 +95,31 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { contactApi } from '@/services/api'
 import { toast } from 'vue3-toastify'
+import { useSiteSettings } from '@/composables/useSiteSettings'
 
 const loading = ref(false)
 const errors = ref({})
 const form = reactive({ name: '', email: '', phone: '', subject: '', message: '' })
 
-const contactItems = [
-  { icon: '📧', label: 'البريد الإلكتروني', value: 'info@artplatform.com' },
-  { icon: '📱', label: 'رقم الجوال', value: '+966 50 000 0000' },
-  { icon: '🕐', label: 'ساعات العمل', value: 'السبت - الخميس، 9 ص - 6 م' },
-  { icon: '📍', label: 'الموقع', value: 'الرياض، المملكة العربية السعودية' },
-]
+const { fetchSettings, get: s } = useSiteSettings()
 
-const socials = [
-  { name: 'Instagram', icon: '📷' },
-  { name: 'Twitter', icon: '𝕏' },
-  { name: 'YouTube', icon: '▶' },
-]
+onMounted(fetchSettings)
+
+const contactItems = computed(() => [
+  { icon: '📧', label: 'البريد الإلكتروني', value: s('contact_email', 'info@artplatform.com') },
+  { icon: '📱', label: 'رقم الجوال', value: s('contact_phone', '+966 50 000 0000') },
+  { icon: '🕐', label: 'ساعات العمل', value: s('contact_hours', 'السبت - الخميس، 9 ص - 6 م') },
+  { icon: '📍', label: 'الموقع', value: s('contact_location', 'الرياض، المملكة العربية السعودية') },
+])
+
+const socials = computed(() => [
+  { name: 'Instagram', icon: '📷', href: s('social_instagram', '#') },
+  { name: 'Twitter', icon: '𝕏', href: s('social_twitter', '#') },
+  { name: 'YouTube', icon: '▶', href: s('social_youtube', '#') },
+])
 
 async function handleSubmit() {
   errors.value = {}

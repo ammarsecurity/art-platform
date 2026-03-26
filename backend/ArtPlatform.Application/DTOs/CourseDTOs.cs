@@ -52,6 +52,7 @@ public class CreateCourseRequest
     public string? PreviewVideoUrl { get; set; }
     public decimal Price { get; set; } = 0;
     public string Level { get; set; } = "Beginner";
+    public string Status { get; set; } = "Draft";
     public bool IsFeatured { get; set; } = false;
     [Required]
     public int CategoryId { get; set; }
@@ -68,6 +69,30 @@ public class CreateLessonRequest
     public bool IsPreview { get; set; } = false;
     [Required]
     public int CourseId { get; set; }
+}
+
+public class UpdateLessonRequest
+{
+    [Required(ErrorMessage = "عنوان الدرس مطلوب")]
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string? VideoUrl { get; set; }
+    public int DurationMinutes { get; set; } = 0;
+    public int SortOrder { get; set; } = 0;
+    public bool IsPreview { get; set; } = false;
+}
+
+public class AdminLessonDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string? VideoUrl { get; set; }
+    public int DurationMinutes { get; set; }
+    public int SortOrder { get; set; }
+    public bool IsPreview { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
 }
 
 public class UpdateProgressRequest

@@ -85,6 +85,14 @@ public class CoursesController : ControllerBase
         return Ok(new { success = true });
     }
 
+    [HttpGet("{courseId:int}/lessons")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetLessons(int courseId)
+    {
+        var lessons = await _courseService.GetLessonsAsync(courseId);
+        return Ok(new { success = true, data = lessons });
+    }
+
     [HttpPost("lessons")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddLesson([FromBody] CreateLessonRequest request)
@@ -92,6 +100,15 @@ public class CoursesController : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var lesson = await _courseService.AddLessonAsync(request);
         return Created("", new { success = true, data = lesson });
+    }
+
+    [HttpPut("lessons/{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateLesson(int id, [FromBody] UpdateLessonRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var lesson = await _courseService.UpdateLessonAsync(id, request);
+        return lesson == null ? NotFound() : Ok(new { success = true, data = lesson });
     }
 
     [HttpDelete("lessons/{id:int}")]

@@ -24,7 +24,7 @@
           </div>
           <div>
             <label class="block text-sm text-gray-400 mb-2">رقم الهاتف</label>
-            <input v-model="form.phone" type="tel" class="input-field" placeholder="05xxxxxxxx" dir="ltr">
+            <input v-model="form.phone" type="tel" class="input-field" placeholder="078xxxxxxxx" dir="ltr">
           </div>
         </div>
 
@@ -155,6 +155,8 @@ async function savePassword() {
   try {
     await authApi.updateProfile({
       name: form.name,
+      phone: form.phone,
+      bio: form.bio,
       currentPassword: passwords.current,
       newPassword: passwords.new
     })

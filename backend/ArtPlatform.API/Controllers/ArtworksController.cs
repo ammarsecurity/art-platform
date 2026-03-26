@@ -38,6 +38,16 @@ public class ArtworksController : ControllerBase
                                : Ok(new { success = true, data = artwork });
     }
 
+    /// <summary>تفاصيل عمل فني بالـ ID (Admin فقط)</summary>
+    [HttpGet("{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var artwork = await _artworkService.GetArtworkByIdAsync(id);
+        return artwork == null ? NotFound(new { success = false, message = "العمل الفني غير موجود" })
+                               : Ok(new { success = true, data = artwork });
+    }
+
     /// <summary>إضافة عمل فني جديد (Admin)</summary>
     [HttpPost]
     [Authorize(Roles = "Admin")]

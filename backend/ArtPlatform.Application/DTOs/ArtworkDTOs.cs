@@ -47,6 +47,7 @@ public class ArtworkListRequest
     public int? CategoryId { get; set; }
     public string? Search { get; set; }
     public string? Status { get; set; }
+    public string? Level { get; set; }
     public bool? IsFeatured { get; set; }
     public string SortBy { get; set; } = "createdAt";
     public string SortOrder { get; set; } = "desc";

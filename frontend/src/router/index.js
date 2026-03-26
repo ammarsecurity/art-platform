@@ -46,11 +46,15 @@ const router = createRouter({
         { path: 'courses', name: 'admin-courses', component: () => import('@/views/admin/CoursesView.vue') },
         { path: 'courses/new', name: 'admin-course-new', component: () => import('@/views/admin/CourseFormView.vue') },
         { path: 'courses/:id/edit', name: 'admin-course-edit', component: () => import('@/views/admin/CourseFormView.vue') },
+        { path: 'courses/:id/lessons', name: 'admin-course-lessons', component: () => import('@/views/admin/CourseLessonsView.vue') },
         { path: 'blog', name: 'admin-blog', component: () => import('@/views/admin/BlogView.vue') },
         { path: 'categories', name: 'admin-categories', component: () => import('@/views/admin/CategoriesView.vue') },
         { path: 'users', name: 'admin-users', component: () => import('@/views/admin/UsersView.vue') },
         { path: 'messages', name: 'admin-messages', component: () => import('@/views/admin/MessagesView.vue') },
         { path: 'pages', name: 'admin-pages', component: () => import('@/views/admin/PagesView.vue') },
+        { path: 'testimonials', name: 'admin-testimonials', component: () => import('@/views/admin/TestimonialsView.vue') },
+        { path: 'contact-settings', name: 'admin-contact-settings', component: () => import('@/views/admin/ContactSettingsView.vue') },
+        { path: 'site-settings', name: 'admin-site-settings', component: () => import('@/views/admin/SiteSettingsView.vue') },
       ]
     },
 

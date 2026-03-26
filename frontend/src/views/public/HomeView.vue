@@ -16,7 +16,7 @@
 
       <!-- Content -->
       <div class="relative z-10 text-center px-4 max-w-5xl mx-auto pt-24">
-        <div class="badge-gold mb-6 inline-flex">✨ منصة الفن العربية الأولى</div>
+        <div class="badge-gold mb-6 inline-flex">{{ s('hero_badge', '✨ منصة مرتضى ثامر العربية الأولى') }}</div>
 
         <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
           استكشف عالم
@@ -24,7 +24,7 @@
         </h1>
 
         <p class="text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-          تعلم، استلهم، وأبدع مع أفضل الفنانين العرب. دورات تعليمية احترافية ومعرض فني استثنائي بين يديك.
+          {{ s('hero_subtitle', 'تعلم، استلهم، وأبدع مع أفضل الفنانين العرب. دورات تعليمية احترافية ومعرض فني استثنائي بين يديك.') }}
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
@@ -85,10 +85,10 @@
         <div class="grid md:grid-cols-2 gap-16 items-center">
           <div class="relative">
             <div class="aspect-square rounded-3xl overflow-hidden bg-dark-200">
-              <img src="https://picsum.photos/600/600?grayscale" alt="الفنان" class="w-full h-full object-cover" loading="lazy">
+              <img :src="s('artist_image_url', 'https://picsum.photos/600/600?grayscale')" alt="الفنان" class="w-full h-full object-cover" loading="lazy">
             </div>
             <div class="absolute -bottom-6 -left-6 card p-6 max-w-xs shadow-2xl">
-              <div class="text-3xl font-bold text-gold">+15</div>
+              <div class="text-3xl font-bold text-gold">{{ s('home_about_experience', '+15') }}</div>
               <div class="text-gray-400">سنة خبرة في الفنون</div>
             </div>
           </div>
@@ -100,10 +100,10 @@
               <span class="text-gradient">لا حدود لها</span>
             </h2>
             <p class="text-gray-400 leading-relaxed mb-6 text-lg">
-              فنان بصري عربي متخصص في الفنون التشكيلية والرقمية. أعمل على توثيق الجمال العربي من خلال ريشتي، وأسعى لنشر ثقافة الفن وتعليمه للجميع.
+              {{ s('home_about_bio_1', 'فنان بصري عربي متخصص في الفنون التشكيلية والرقمية. أعمل على توثيق الجمال العربي من خلال ريشتي، وأسعى لنشر ثقافة الفن وتعليمه للجميع.') }}
             </p>
             <p class="text-gray-400 leading-relaxed mb-8 text-lg">
-              من خلال منصتي، أشاركك رحلتي الإبداعية وأعلمك أسرار الفن خطوة بخطوة.
+              {{ s('home_about_bio_2', 'من خلال منصتي، أشاركك رحلتي الإبداعية وأعلمك أسرار الفن خطوة بخطوة.') }}
             </p>
             <RouterLink to="/about" class="btn-primary">اعرف المزيد عني</RouterLink>
           </div>
@@ -135,9 +135,9 @@
           <h2 class="section-title">ماذا يقول طلابنا</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div v-for="t in testimonials" :key="t.name" class="card p-8">
+          <div v-for="t in testimonials" :key="t.id" class="card p-8">
             <div class="flex items-center gap-1 mb-4">
-              <span v-for="s in 5" :key="s" class="text-gold text-lg">★</span>
+              <span v-for="star in t.rating" :key="star" class="text-gold text-lg">★</span>
             </div>
             <p class="text-gray-300 leading-relaxed mb-6">"{{ t.text }}"</p>
             <div class="flex items-center gap-3">
@@ -157,8 +157,8 @@
     <!-- CTA -->
     <section class="py-24 px-4">
       <div class="max-w-4xl mx-auto text-center card-glass p-16">
-        <h2 class="text-4xl font-bold text-white mb-6">ابدأ رحلتك الإبداعية اليوم</h2>
-        <p class="text-gray-400 text-xl mb-10">انضم لآلاف الطلاب وتعلم الفن من أفضل الأساتذة العرب</p>
+        <h2 class="text-4xl font-bold text-white mb-6">{{ s('cta_title', 'ابدأ رحلتك الإبداعية اليوم') }}</h2>
+        <p class="text-gray-400 text-xl mb-10">{{ s('cta_subtitle', 'انضم لآلاف الطلاب وتعلم الفن من أفضل الأساتذة العرب') }}</p>
         <RouterLink to="/register" class="btn-primary text-lg px-10 py-4">سجل مجاناً الآن</RouterLink>
       </div>
     </section>
@@ -166,30 +166,39 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useArtworkStore } from '@/stores/artworks'
 import { useCourseStore } from '@/stores/courses'
+import { testimonialApi } from '@/services/api'
+import { useSiteSettings } from '@/composables/useSiteSettings'
 import ArtworkCard from '@/components/ui/ArtworkCard.vue'
 import CourseCard from '@/components/ui/CourseCard.vue'
 
 const artworkStore = useArtworkStore()
 const courseStore = useCourseStore()
+const testimonials = ref([])
+const { fetchSettings, get: s } = useSiteSettings()
 
-onMounted(() => {
+onMounted(async () => {
   artworkStore.fetchFeatured()
   courseStore.fetchFeatured()
+  fetchSettings()
+  try {
+    const res = await testimonialApi.getActive()
+    testimonials.value = res.data || []
+  } catch {
+    testimonials.value = [
+      { id: 1, name: 'أحمد الكندي', title: 'طالب فنون بصرية', text: 'منصة رائعة جداً! تعلمت في أسابيع ما لم أستطع تعلمه في سنوات. الأسلوب واضح ومحترف.', rating: 5 },
+      { id: 2, name: 'سارة المطيري', title: 'مصممة جرافيك', text: 'الدورات ممتازة وتغطي كل جوانب الفن الرقمي. المدرس يشرح بأسلوب عربي مفهوم.', rating: 5 },
+      { id: 3, name: 'محمد العمري', title: 'فنان هاوي', text: 'المعرض الفني ملهم جداً! الأعمال احترافية وتحفزني على التعلم أكثر كل يوم.', rating: 5 },
+    ]
+  }
 })
 
-const stats = [
-  { value: '+200', label: 'عمل فني' },
-  { value: '+50', label: 'دورة تعليمية' },
-  { value: '+5000', label: 'طالب' },
-  { value: '15+', label: 'سنة خبرة' },
-]
-
-const testimonials = [
-  { name: 'أحمد الكندي', title: 'طالب فنون بصرية', text: 'منصة رائعة جداً! تعلمت في أسابيع ما لم أستطع تعلمه في سنوات. الأسلوب واضح ومحترف.' },
-  { name: 'سارة المطيري', title: 'مصممة جرافيك', text: 'الدورات ممتازة وتغطي كل جوانب الفن الرقمي. المدرس يشرح بأسلوب عربي مفهوم.' },
-  { name: 'محمد العمري', title: 'فنان هاوي', text: 'المعرض الفني ملهم جداً! الأعمال احترافية وتحفزني على التعلم أكثر كل يوم.' },
-]
+const stats = computed(() => [
+  { value: s('stat_artworks', '+200'), label: 'عمل فني' },
+  { value: s('stat_courses', '+50'), label: 'دورة تعليمية' },
+  { value: s('stat_students', '+5000'), label: 'طالب' },
+  { value: s('stat_experience', '15+'), label: 'سنة خبرة' },
+])
 </script>

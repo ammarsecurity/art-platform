@@ -7,6 +7,7 @@ public interface IBlogService
 {
     Task<PagedResult<BlogPostDto>> GetPostsAsync(ArtworkListRequest request);
     Task<BlogPostDetailDto?> GetPostBySlugAsync(string slug);
+    Task<BlogPostDetailDto?> GetPostByIdAsync(int id);
     Task<BlogPostDetailDto> CreatePostAsync(CreateBlogPostRequest request, IFormFile? image);
     Task<BlogPostDetailDto?> UpdatePostAsync(int id, CreateBlogPostRequest request, IFormFile? image);
     Task<bool> DeletePostAsync(int id);

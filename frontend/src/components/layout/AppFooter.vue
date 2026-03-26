@@ -8,15 +8,23 @@
             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
               <span class="text-dark font-bold text-lg">ف</span>
             </div>
-            <span class="text-xl font-bold text-white">منصة الفن</span>
+            <span class="text-xl font-bold text-white">{{ s('site_name', 'منصة مرتضى ثامر') }}</span>
           </div>
           <p class="text-gray-400 leading-relaxed max-w-sm">
-            منصة عربية متخصصة للفنون البصرية والتعليم الإبداعي. استكشف أعمال الفنانين وتعلم مهاراتك من أفضل الأساتذة.
+            {{ s('footer_description', 'منصة عربية متخصصة للفنون البصرية والتعليم الإبداعي. استكشف أعمال الفنانين وتعلم مهاراتك من أفضل الأساتذة.') }}
           </p>
           <div class="flex gap-4 mt-6">
-            <a v-for="social in socials" :key="social.name" href="#"
+            <a v-if="s('social_instagram', '#') !== '#'" :href="s('social_instagram')" target="_blank" rel="noopener"
               class="w-10 h-10 rounded-lg bg-dark-200 border border-dark-300 flex items-center justify-center text-gray-400 hover:text-gold hover:border-gold/40 transition-all duration-300">
-              {{ social.icon }}
+              📷
+            </a>
+            <a v-if="s('social_twitter', '#') !== '#'" :href="s('social_twitter')" target="_blank" rel="noopener"
+              class="w-10 h-10 rounded-lg bg-dark-200 border border-dark-300 flex items-center justify-center text-gray-400 hover:text-gold hover:border-gold/40 transition-all duration-300">
+              𝕏
+            </a>
+            <a v-if="s('social_youtube', '#') !== '#'" :href="s('social_youtube')" target="_blank" rel="noopener"
+              class="w-10 h-10 rounded-lg bg-dark-200 border border-dark-300 flex items-center justify-center text-gray-400 hover:text-gold hover:border-gold/40 transition-all duration-300">
+              ▶
             </a>
           </div>
         </div>
@@ -35,7 +43,7 @@
       </div>
 
       <div class="border-t border-dark-300 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-        <p>© {{ new Date().getFullYear() }} منصة الفن. جميع الحقوق محفوظة.</p>
+        <p>© {{ new Date().getFullYear() }} {{ s('site_name', 'منصة مرتضى ثامر') }}. جميع الحقوق محفوظة.</p>
         <div class="flex gap-6">
           <RouterLink to="/privacy" class="hover:text-gray-300 transition-colors">سياسة الخصوصية</RouterLink>
           <RouterLink to="/terms" class="hover:text-gray-300 transition-colors">شروط الاستخدام</RouterLink>
@@ -46,12 +54,12 @@
 </template>
 
 <script setup>
-const socials = [
-  { name: 'instagram', icon: '📷' },
-  { name: 'twitter', icon: '𝕏' },
-  { name: 'youtube', icon: '▶' },
-  { name: 'behance', icon: 'Be' },
-]
+import { onMounted } from 'vue'
+import { useSiteSettings } from '@/composables/useSiteSettings'
+
+const { fetchSettings, get: s } = useSiteSettings()
+
+onMounted(() => fetchSettings())
 
 const footerLinks = [
   {

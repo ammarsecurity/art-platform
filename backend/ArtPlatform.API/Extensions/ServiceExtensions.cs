@@ -30,6 +30,7 @@ public static class ServiceExtensions
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IFileService, FileService>();
+        services.AddScoped<ITestimonialService, TestimonialService>();
 
         // JWT Authentication
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -66,9 +67,9 @@ public static class ServiceExtensions
         {
             c.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "منصة الفن - Art Platform API",
+                Title = "منصة مرتضى ثامر - Art Platform API",
                 Version = "v1",
-                Description = "واجهة برمجية لمنصة الفن والتعلم"
+                Description = "واجهة برمجية لمنصة مرتضى ثامر والتعلم"
             });
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {

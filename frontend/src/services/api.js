@@ -46,6 +46,7 @@ export const artworkApi = {
   getAll: (params) => api.get('/artworks', { params }),
   getFeatured: (count = 6) => api.get('/artworks/featured', { params: { count } }),
   getBySlug: (slug) => api.get(`/artworks/${slug}`),
+  getById: (id) => api.get(`/artworks/${id}`),
   create: (formData) => api.post('/artworks', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   update: (id, formData) => api.put(`/artworks/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   delete: (id) => api.delete(`/artworks/${id}`),
@@ -69,14 +70,18 @@ export const courseApi = {
   delete: (id) => api.delete(`/courses/${id}`),
   enroll: (courseId) => api.post(`/courses/${courseId}/enroll`),
   updateProgress: (data) => api.post('/courses/progress', data),
+  getLessons: (courseId) => api.get(`/courses/${courseId}/lessons`),
   addLesson: (data) => api.post('/courses/lessons', data),
+  updateLesson: (id, data) => api.put(`/courses/lessons/${id}`, data),
   deleteLesson: (id) => api.delete(`/courses/lessons/${id}`),
+  reorderLessons: (courseId, ids) => api.put(`/courses/${courseId}/lessons/reorder`, { ids }),
 }
 
 // ── Blog ──────────────────────────────────────────────
 export const blogApi = {
   getAll: (params) => api.get('/blog', { params }),
   getBySlug: (slug) => api.get(`/blog/${slug}`),
+  getById: (id) => api.get(`/blog/${id}`),
   create: (formData) => api.post('/blog', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   update: (id, formData) => api.put(`/blog/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   delete: (id) => api.delete(`/blog/${id}`),
@@ -88,6 +93,23 @@ export const contactApi = {
   getAll: (params) => api.get('/contact', { params }),
   markRead: (id) => api.patch(`/contact/${id}/read`),
   delete: (id) => api.delete(`/contact/${id}`),
+}
+
+// ── Testimonials ──────────────────────────────────────
+export const testimonialApi = {
+  getActive: () => api.get('/testimonials'),
+  getAll: () => api.get('/testimonials/all'),
+  create: (data) => api.post('/testimonials', data),
+  update: (id, data) => api.put(`/testimonials/${id}`, data),
+  delete: (id) => api.delete(`/testimonials/${id}`),
+  toggle: (id) => api.put(`/testimonials/${id}/toggle`),
+}
+
+// ── Users (Admin) ─────────────────────────────────────
+export const userApi = {
+  getAll: (params) => api.get('/users', { params }),
+  updateRole: (id, role) => api.put(`/users/${id}/role`, { role }),
+  toggleStatus: (id) => api.put(`/users/${id}/status`),
 }
 
 // ── Admin ─────────────────────────────────────────────

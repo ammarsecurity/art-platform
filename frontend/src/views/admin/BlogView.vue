@@ -108,12 +108,21 @@ async function fetchPosts() {
   posts.value = res.data.items
 }
 
-function openForm(post = null) {
+async function openForm(post = null) {
   editPost.value = post
   imageFile.value = null
-  Object.assign(form, post
-    ? { title: post.title, excerpt: post.excerpt || '', content: '', status: post.status, isFeatured: post.isFeatured }
-    : { title: '', excerpt: '', content: '', status: 'Draft', isFeatured: false })
+  if (post) {
+    // Fetch full content — list DTO doesn't include content field
+    try {
+      const res = await blogApi.getById(post.id)
+      const full = res.data
+      Object.assign(form, { title: full.title, excerpt: full.excerpt || '', content: full.content || '', status: full.status, isFeatured: full.isFeatured })
+    } catch {
+      Object.assign(form, { title: post.title, excerpt: post.excerpt || '', content: '', status: post.status, isFeatured: post.isFeatured })
+    }
+  } else {
+    Object.assign(form, { title: '', excerpt: '', content: '', status: 'Draft', isFeatured: false })
+  }
   showForm.value = true
 }
 
