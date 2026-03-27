@@ -15,8 +15,11 @@
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="course in courses" :key="course.id" class="card group overflow-hidden">
         <div class="relative aspect-video overflow-hidden">
-          <img :src="course.thumbnailUrl || 'https://picsum.photos/400/225?grayscale'" :alt="course.title"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <img
+            :src="course.thumbnailUrl ? resolveMediaUrl(course.thumbnailUrl) : 'https://picsum.photos/400/225?grayscale'"
+            :alt="course.title"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          >
           <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
           <span class="absolute top-3 left-3 badge text-xs"
             :class="course.status === 'Published' ? 'bg-green-500/80 text-white' : course.status === 'Archived' ? 'bg-gray-600/90 text-white' : 'bg-yellow-500/80 text-white'">
@@ -80,6 +83,7 @@
 import { ref, onMounted } from 'vue'
 import { courseApi } from '@/services/api'
 import { toast } from 'vue3-toastify'
+import { resolveMediaUrl } from '@/utils/mediaUrl'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 
 const courses = ref([])

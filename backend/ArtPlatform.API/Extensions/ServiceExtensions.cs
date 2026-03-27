@@ -49,12 +49,15 @@ public static class ServiceExtensions
                 };
             });
 
-        // CORS
+        // CORS — أو عبر متغير واحد مفصول بفواصل (مفيد لـ Docker: CorsOriginsCsv / CorsOrigins__ من البيئة)
         services.AddCors(options =>
         {
             options.AddPolicy("AllowFrontend", policy =>
             {
-                var origins = config.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+                var csv = config["CorsOriginsCsv"]?.Trim();
+                string[] origins = string.IsNullOrEmpty(csv)
+                    ? config.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>()
+                    : csv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 policy.WithOrigins(origins)
                       .AllowAnyHeader()
                       .AllowAnyMethod()

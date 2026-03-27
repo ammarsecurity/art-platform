@@ -2,7 +2,7 @@ import axios from 'axios'
 import { toast } from 'vue3-toastify'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://api.murtada-thamer.com/api',
   timeout: 30000,
   headers: { 'Content-Type': 'application/json' }
 })

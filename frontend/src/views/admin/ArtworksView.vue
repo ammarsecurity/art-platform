@@ -42,8 +42,11 @@
             class="hover:bg-input/50 transition-colors group">
             <td class="px-4 py-3">
               <div class="flex items-center gap-3">
-                <img :src="artwork.thumbnailUrl || artwork.imageUrl" :alt="artwork.title"
-                  class="w-12 h-12 rounded-xl object-cover">
+                <img
+                  :src="resolveMediaUrl(artwork.thumbnailUrl || artwork.imageUrl)"
+                  :alt="artwork.title"
+                  class="w-12 h-12 rounded-xl object-cover"
+                >
                 <div>
                   <p class="text-fg font-medium text-sm">{{ artwork.title }}</p>
                   <p class="text-fg-dim text-xs">{{ artwork.medium }}</p>
@@ -99,6 +102,7 @@ import { artworkApi, categoryApi } from '@/services/api'
 import Pagination from '@/components/ui/Pagination.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import { toast } from 'vue3-toastify'
+import { resolveMediaUrl } from '@/utils/mediaUrl'
 
 const artworks = ref([])
 const categories = ref([])

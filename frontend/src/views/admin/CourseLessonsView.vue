@@ -37,7 +37,7 @@
               </div>
               <a
                 v-if="l.videoUrl"
-                :href="l.videoUrl"
+                :href="resolveMediaUrl(l.videoUrl)"
                 target="_blank"
                 rel="noopener"
                 class="text-gold text-xs hover:underline mt-1 inline-block truncate max-w-md"
@@ -222,6 +222,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { courseApi } from '@/services/api'
 import { toast } from 'vue3-toastify'
 import { asciiFilenameForUpload } from '@/utils/safeUploadFile'
+import { resolveMediaUrl } from '@/utils/mediaUrl'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 
 const route = useRoute()

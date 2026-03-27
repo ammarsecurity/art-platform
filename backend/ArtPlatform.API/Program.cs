@@ -51,7 +51,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Art Platform API v1"));
 }
-
+app.UseSwagger();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Art Platform API v1"));
 app.UseStaticFiles();
 app.UseCors("AllowFrontend");
 app.UseAuthentication();

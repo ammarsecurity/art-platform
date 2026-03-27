@@ -1,0 +1,15 @@
+# سياق البناء — لا تنسخ مجلدات البناء من الويندوز (سبب خطأ NuGet داخل لينكس)
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/Bin
+**/Obj
+**/out
+**/*.user
+**/*.suo
+**/TestResults
+**/.idea
+**/*.db-shm
+**/*.db-wal
+**/wwwroot/uploads/**

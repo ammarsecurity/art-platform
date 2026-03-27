@@ -93,7 +93,12 @@
           <div v-else-if="activeLesson?.videoUrl" class="w-full h-full flex items-center justify-center p-6">
             <div class="text-center text-fg-mute max-w-md">
               <p class="text-sm mb-3">تعذّر تشغيل هذا الرابط داخل الصفحة.</p>
-              <a :href="activeLesson.videoUrl" target="_blank" rel="noopener" class="text-gold hover:underline text-sm">فتح الفيديو في نافذة جديدة</a>
+              <a
+                :href="resolveMediaUrl(activeLesson.videoUrl)"
+                target="_blank"
+                rel="noopener"
+                class="text-gold hover:underline text-sm"
+              >فتح الفيديو في نافذة جديدة</a>
             </div>
           </div>
           <div v-else class="w-full h-full flex items-center justify-center">

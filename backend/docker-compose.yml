@@ -1,0 +1,43 @@
+version: "3.8"
+
+# تشغيل على Linux: ضع الملفات بجانب Dockerfile ثم:
+#   cp env.example .env && nano .env
+#   sudo mkdir -p /www/wwwroot/api.murtada-thamer.com/wwwroot/uploads
+#   sudo chown -R 1654:1654 /www/wwwroot/api.murtada-thamer.com/wwwroot
+#   (1654 = مستخدم app داخل صورة aspnet الرسمية؛ أو استخدم chmod 775 حسب إعداداتك)
+#   docker compose up -d --build
+#
+# مجلد wwwroot على السيرفر (ملفات ثابتة + رفع الملفات) يُركّب على /app/wwwroot داخل الحاوية
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: artplatform-api:latest
+    container_name: artplatform-api
+    restart: unless-stopped
+    ports:
+      - "5567:5567"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://0.0.0.0:5567
+      # قاعدة البيانات — عيّنها في .env
+      ConnectionStrings__DefaultConnection: ${DB_CONNECTION}
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: ${JWT_ISSUER:-ArtPlatform}
+      Jwt__Audience: ${JWT_AUDIENCE:-ArtPlatformUsers}
+      Api__PublicBaseUrl: ${API_PUBLIC_BASE_URL}
+      # مسار الرفع: داخل الحاوية يبقى تحت wwwroot المُركّب
+      FileStorage__UploadPath: wwwroot/uploads
+      FileStorage__BaseUrl: /uploads
+      # CORS — قائمة مفصولة بفواصل (تتجاوز AllowedOrigins في appsettings إن وُجدت)
+      CorsOriginsCsv: ${CORS_ORIGINS}
+    env_file:
+      - .env
+    volumes:
+      # ملفات الموقع الثابتة والمرفوعات على السيرفر (aaPanel / مسارك)
+      - /www/wwwroot/api.murtada-thamer.com/wwwroot:/app/wwwroot
+    # إن كان MySQL على نفس السيرفر وليس على شبكة Docker الافتراضية، استخدم:
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"

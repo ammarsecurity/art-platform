@@ -14,14 +14,14 @@ export default defineConfig({
     port: 4435,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:5567',
+        target: 'https://api.murtada-thamer.com',
         changeOrigin: true,
         timeout: 600_000,
         proxyTimeout: 600_000
       },
       // Static files from ASP.NET (wwwroot/uploads) — same origin as API
       '/uploads': {
-        target: 'http://127.0.0.1:5567',
+        target: 'https://api.murtada-thamer.com',
         changeOrigin: true
       }
     }

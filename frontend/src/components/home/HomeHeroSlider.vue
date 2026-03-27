@@ -34,7 +34,25 @@
          style="animation-delay: 1.2s" />
 
     <!-- محتوى -->
-    <div class="relative z-[4] w-full max-w-5xl mx-auto px-4 pb-28 pt-32 text-center">
+    <div class="relative z-[4] w-full max-w-5xl mx-auto px-4 pb-28 pt-24 sm:pt-28 md:pt-32 text-center">
+      <!-- شعار حسب الثيم: وضع فاتح / داكن -->
+      <div class="mb-6 flex justify-center">
+        <img
+          :src="logoLight"
+          alt="Murtada Thamer"
+          width="480"
+          height="120"
+          class="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-[min(100%,640px)] object-contain object-center dark:hidden drop-shadow-sm"
+        >
+        <img
+          :src="logoDark"
+          alt="Murtada Thamer"
+          width="480"
+          height="120"
+          class="hidden h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-[min(100%,640px)] object-contain object-center dark:block drop-shadow-md"
+        >
+      </div>
+
       <div class="badge-gold mb-6 inline-flex">{{ heroBadge }}</div>
 
       <template v-if="useClassicHeadline">
@@ -135,6 +153,8 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { resolveMediaUrl } from '@/utils/mediaUrl'
+import logoLight from '@/assets/light.png'
+import logoDark from '@/assets/dark.png'
 
 const props = defineProps({
   slides: { type: Array, required: true },

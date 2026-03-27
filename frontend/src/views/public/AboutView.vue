@@ -21,7 +21,7 @@
         </div>
         <div class="relative">
           <div class="aspect-[4/5] rounded-3xl overflow-hidden">
-            <img src="https://picsum.photos/400/500?grayscale" alt="الفنان" class="w-full h-full object-cover">
+            <img :src="aboutImageSrc" alt="الفنان" class="w-full h-full object-cover">
           </div>
           <div class="absolute -bottom-6 -right-6 card p-5">
             <div class="text-3xl font-bold text-gold">15+</div>
@@ -67,6 +67,23 @@
 </template>
 
 <script setup>
+import { computed, onMounted } from 'vue'
+import { useSiteSettingsStore } from '@/stores/siteSettings'
+import { resolveMediaUrl } from '@/utils/mediaUrl'
+
+const site = useSiteSettingsStore()
+
+onMounted(() => {
+  site.load()
+})
+
+/** صورة «عن الفنان» من إعدادات الصفحة الرئيسية، مع بديل ثابت */
+const aboutImageSrc = computed(() => {
+  const u = site.data?.homePage?.about?.imageUrl
+  if (u && String(u).trim()) return resolveMediaUrl(u)
+  return 'https://picsum.photos/400/500?grayscale'
+})
+
 const skills = [
   { icon: '🖌️', name: 'رسم زيتي', level: 95 },
   { icon: '💻', name: 'فن رقمي', level: 88 },

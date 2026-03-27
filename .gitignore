@@ -13,8 +13,10 @@ backend/**/*.user
 backend/**/.vs/
 backend/**/appsettings.Development.json
 
-# ── Uploads ──────────────────────────────────────────
+# ── Uploads / أرشيفات كبيرة (لا تُرفع لـ GitHub) ───────
 backend/ArtPlatform.API/wwwroot/uploads/
+*.tar
+backend/*.tar
 
 # ── OS ───────────────────────────────────────────────
 .DS_Store
