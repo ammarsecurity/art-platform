@@ -17,11 +17,13 @@ public class AuthService : IAuthService
 {
     private readonly AppDbContext _context;
     private readonly IConfiguration _config;
+    private readonly IMediaUrlBuilder _mediaUrl;
 
-    public AuthService(AppDbContext context, IConfiguration config)
+    public AuthService(AppDbContext context, IConfiguration config, IMediaUrlBuilder mediaUrl)
     {
         _context = context;
         _config = config;
+        _mediaUrl = mediaUrl;
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
@@ -65,7 +67,7 @@ public class AuthService : IAuthService
             Name = user.Name,
             Phone = user.Phone,
             Role = user.Role.ToString(),
-            AvatarUrl = user.AvatarUrl,
+            AvatarUrl = _mediaUrl.ToAbsolute(user.AvatarUrl),
             Bio = user.Bio,
             CreatedAt = user.CreatedAt
         };
@@ -104,7 +106,7 @@ public class AuthService : IAuthService
             Name = user.Name,
             Phone = user.Phone,
             Role = user.Role.ToString(),
-            AvatarUrl = user.AvatarUrl,
+            AvatarUrl = _mediaUrl.ToAbsolute(user.AvatarUrl),
             Bio = user.Bio,
             CreatedAt = user.CreatedAt
         };
@@ -132,7 +134,7 @@ public class AuthService : IAuthService
                 Title = course.Title,
                 Slug = course.Slug,
                 ShortDescription = course.ShortDescription,
-                ThumbnailUrl = course.ThumbnailUrl,
+                ThumbnailUrl = _mediaUrl.ToAbsolute(course.ThumbnailUrl),
                 Price = course.Price,
                 DurationMinutes = course.DurationMinutes,
                 Level = course.Level.ToString(),
@@ -179,7 +181,7 @@ public class AuthService : IAuthService
                 Name = user.Name,
                 Phone = user.Phone,
                 Role = user.Role.ToString(),
-                AvatarUrl = user.AvatarUrl
+                AvatarUrl = _mediaUrl.ToAbsolute(user.AvatarUrl)
             }
         };
     }

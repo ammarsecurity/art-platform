@@ -14,6 +14,7 @@ public class BlogPostDto
     public int ViewCount { get; set; }
     public DateTime? PublishedAt { get; set; }
     public DateTime CreatedAt { get; set; }
+    public int SortOrder { get; set; }
 }
 
 public class BlogPostDetailDto : BlogPostDto
@@ -34,6 +35,7 @@ public class CreateBlogPostRequest
     public string? MetaDescription { get; set; }
     public bool IsFeatured { get; set; } = false;
     public string Status { get; set; } = "Draft";
+    public int SortOrder { get; set; } = 0;
 }
 
 public class ContactMessageDto

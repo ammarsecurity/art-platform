@@ -23,9 +23,20 @@ export const useArtworkStore = defineStore('artworks', () => {
     }
   }
 
+  /** أحدث الأعمال المنشورة للصفحة الرئيسية (حسب تاريخ الإضافة، لا اشتراط «مميز») */
   async function fetchFeatured() {
-    const res = await artworkApi.getFeatured(6)
-    featured.value = res.data
+    loading.value = true
+    try {
+      const res = await artworkApi.getAll({
+        page: 1,
+        pageSize: 6,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+      })
+      featured.value = res.data?.items ?? []
+    } finally {
+      loading.value = false
+    }
   }
 
   async function fetchBySlug(slug) {

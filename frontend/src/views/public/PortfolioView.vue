@@ -12,7 +12,7 @@
       <button
         @click="setCategory(null)"
         class="px-4 py-2 rounded-full border transition-all text-sm font-medium"
-        :class="!activeCategory ? 'bg-gold border-gold text-dark' : 'border-dark-300 text-gray-400 hover:border-gold hover:text-gold'"
+        :class="!activeCategory ? 'bg-gold border-gold text-dark' : 'border-line text-fg-mute hover:border-gold hover:text-gold'"
       >الكل</button>
 
       <button
@@ -20,7 +20,7 @@
         :key="cat.id"
         @click="setCategory(cat.id)"
         class="px-4 py-2 rounded-full border transition-all text-sm font-medium"
-        :class="activeCategory === cat.id ? 'bg-gold border-gold text-dark' : 'border-dark-300 text-gray-400 hover:border-gold hover:text-gold'"
+        :class="activeCategory === cat.id ? 'bg-gold border-gold text-dark' : 'border-line text-fg-mute hover:border-gold hover:text-gold'"
       >{{ cat.name }}</button>
 
       <!-- Search -->
@@ -32,18 +32,18 @@
           placeholder="بحث..."
           class="input-field pr-10 w-64 text-sm py-2"
         >
-        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-fg-dim">🔍</span>
       </div>
     </div>
 
     <!-- Grid -->
     <div v-if="artworkStore.loading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <div v-for="i in 12" :key="i" class="aspect-square rounded-2xl bg-dark-200 animate-pulse"></div>
+      <div v-for="i in 12" :key="i" class="aspect-square rounded-2xl bg-input animate-pulse"></div>
     </div>
 
     <div v-else-if="artworkStore.artworks.length === 0" class="text-center py-24">
       <div class="text-6xl mb-4">🎨</div>
-      <p class="text-gray-400 text-xl">لا توجد أعمال فنية لعرضها</p>
+      <p class="text-fg-mute text-xl">لا توجد أعمال فنية لعرضها</p>
     </div>
 
     <div v-else class="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">

@@ -43,6 +43,33 @@ public class FileService : IFileService
         return $"{_baseUrl}/{folder}/{fileName}";
     }
 
+    public async Task<string> UploadVideoAsync(IFormFile file, string folder)
+    {
+        if (file == null || file.Length == 0)
+            throw new ArgumentException("الملف غير صالح");
+
+        var allowedExtensions = new[] { ".mp4", ".webm", ".mov", ".m4v", ".mkv", ".ogv" };
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+        if (!allowedExtensions.Contains(extension))
+            throw new ArgumentException("نوع الفيديو غير مسموح. يُسمح بـ MP4, WebM, MOV, M4V, MKV");
+
+        const long maxBytes = 500L * 1024 * 1024;
+        if (file.Length > maxBytes)
+            throw new ArgumentException("حجم الفيديو يتجاوز الحد الأقصى (500 ميجابايت)");
+
+        var uploadDir = Path.Combine(_uploadPath, folder);
+        Directory.CreateDirectory(uploadDir);
+
+        var fileName = $"{Guid.NewGuid()}{extension}";
+        var filePath = Path.Combine(uploadDir, fileName);
+
+        await using var stream = new FileStream(filePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        return $"{_baseUrl}/{folder}/{fileName}";
+    }
+
     public Task<bool> DeleteFileAsync(string filePath)
     {
         var fullPath = filePath.Replace(_baseUrl, _uploadPath);

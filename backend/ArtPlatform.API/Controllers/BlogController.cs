@@ -2,6 +2,7 @@ using ArtPlatform.Application.DTOs;
 using ArtPlatform.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace ArtPlatform.API.Controllers;
 
@@ -14,10 +15,24 @@ public class BlogController : ControllerBase
     public BlogController(IBlogService blogService) => _blogService = blogService;
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] ArtworkListRequest request)
     {
+        if (!User.IsInRole("Admin"))
+            request.Status = null;
         var result = await _blogService.GetPostsAsync(request);
         return Ok(new { success = true, data = result });
+    }
+
+    /// <summary>تفاصيل المقال بالمعرّف — للتحرير من لوحة الإدارة (مسودة أو منشور)</summary>
+    [HttpGet("by-id/{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var post = await _blogService.GetPostByIdAsync(id);
+        return post == null
+            ? NotFound(new { success = false, message = "المقال غير موجود" })
+            : Ok(new { success = true, data = post });
     }
 
     [HttpGet("{slug}")]
@@ -34,7 +49,8 @@ public class BlogController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var post = await _blogService.CreatePostAsync(request, image);
-        return Created($"/api/blog/{post.Slug}", new { success = true, data = post });
+        var location = $"/api/blog/{Uri.EscapeDataString(post.Slug)}";
+        return Created(location, new { success = true, data = post });
     }
 
     [HttpPut("{id:int}")]

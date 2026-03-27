@@ -61,3 +61,42 @@ public class UserDto
     public string? Bio { get; set; }
     public DateTime CreatedAt { get; set; }
 }
+
+/// <summary>قائمة المستخدمين في لوحة الإدارة (بدون كلمة المرور)</summary>
+public class AdminUserListItemDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Phone { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+    public string? Bio { get; set; }
+    public string? AvatarUrl { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+public class AdminUpdateUserRequest
+{
+    [Required(ErrorMessage = "الاسم مطلوب")]
+    [StringLength(100, MinimumLength = 2)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "رقم الهاتف مطلوب")]
+    [Phone(ErrorMessage = "رقم هاتف غير صالح")]
+    public string Phone { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "الدور مطلوب")]
+    public string Role { get; set; } = "Student";
+
+    public bool IsActive { get; set; } = true;
+
+    [StringLength(500)]
+    public string? Bio { get; set; }
+}
+
+public class AdminResetPasswordRequest
+{
+    [Required(ErrorMessage = "كلمة المرور مطلوبة")]
+    [MinLength(8, ErrorMessage = "كلمة المرور يجب أن تكون 8 أحرف على الأقل")]
+    public string NewPassword { get; set; } = string.Empty;
+}

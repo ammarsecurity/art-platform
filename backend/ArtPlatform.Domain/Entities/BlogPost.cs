@@ -12,6 +12,8 @@ public class BlogPost
     public string? FeaturedImageUrl { get; set; }
     public PostStatus Status { get; set; } = PostStatus.Draft;
     public bool IsFeatured { get; set; } = false;
+    /// <summary>ترتيب العرض في القوائم (الأكبر يظهر أولاً عند الفرز الافتراضي)</summary>
+    public int SortOrder { get; set; } = 0;
     public int ViewCount { get; set; } = 0;
     public string? MetaTitle { get; set; }
     public string? MetaDescription { get; set; }

@@ -1,3 +1,5 @@
+using System.Text.Json;
+using ArtPlatform.Application.DTOs;
 using ArtPlatform.Domain.Entities;
 using ArtPlatform.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -257,7 +259,8 @@ public static class DatabaseSeeder
                     PublishedAt = new DateTime(2024, 3, 15),
                     CreatedAt = new DateTime(2024, 3, 15),
                     MetaTitle = "10 نصائح لتحسين مهارات الرسم",
-                    MetaDescription = "نصائح عملية لتطوير مهاراتك في الرسم سواء كنت مبتدئاً أو محترفاً"
+                    MetaDescription = "نصائح عملية لتطوير مهاراتك في الرسم سواء كنت مبتدئاً أو محترفاً",
+                    SortOrder = 30
                 },
                 new BlogPost
                 {
@@ -272,7 +275,8 @@ public static class DatabaseSeeder
                     PublishedAt = new DateTime(2024, 4, 1),
                     CreatedAt = new DateTime(2024, 4, 1),
                     MetaTitle = "دليل الفن الرقمي للمبتدئين",
-                    MetaDescription = "كل ما تحتاج معرفته للبدء في الفن الرقمي — الأدوات والبرامج والخطوات الأولى"
+                    MetaDescription = "كل ما تحتاج معرفته للبدء في الفن الرقمي — الأدوات والبرامج والخطوات الأولى",
+                    SortOrder = 20
                 },
                 new BlogPost
                 {
@@ -287,10 +291,78 @@ public static class DatabaseSeeder
                     PublishedAt = new DateTime(2024, 5, 10),
                     CreatedAt = new DateTime(2024, 5, 10),
                     MetaTitle = "كيف تطور أسلوبك الفني الخاص",
-                    MetaDescription = "نصائح لاكتشاف وتطوير أسلوبك الفني الشخصي الفريد"
+                    MetaDescription = "نصائح لاكتشاف وتطوير أسلوبك الفني الشخصي الفريد",
+                    SortOrder = 10
                 }
             );
             await context.SaveChangesAsync();
         }
+
+        await EnsureHomePageConfigAsync(context);
+        await EnsureContactPageConfigAsync(context);
+        await EnsureFooterConfigAsync(context);
+    }
+
+    private static async Task EnsureFooterConfigAsync(AppDbContext context)
+    {
+        const string key = "footer_config";
+        if (await context.SiteSettings.AnyAsync(s => s.Key == key))
+            return;
+
+        var json = JsonSerializer.Serialize(new FooterConfigDto(), new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false
+        });
+
+        context.SiteSettings.Add(new SiteSettings
+        {
+            Key = key,
+            Value = json,
+            Description = "محتوى الفوتر (العلامة، الأعمدة، السوشيال، حقوق النشر)"
+        });
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task EnsureContactPageConfigAsync(AppDbContext context)
+    {
+        const string key = "contact_page_config";
+        if (await context.SiteSettings.AnyAsync(s => s.Key == key))
+            return;
+
+        var json = JsonSerializer.Serialize(new ContactPageConfigDto(), new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false
+        });
+
+        context.SiteSettings.Add(new SiteSettings
+        {
+            Key = key,
+            Value = json,
+            Description = "محتوى صفحة التواصل (عناوين، نموذج، معلومات، روابط اجتماعية)"
+        });
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task EnsureHomePageConfigAsync(AppDbContext context)
+    {
+        const string key = "home_page_config";
+        if (await context.SiteSettings.AnyAsync(s => s.Key == key))
+            return;
+
+        var json = JsonSerializer.Serialize(new HomePageConfigDto(), new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false
+        });
+
+        context.SiteSettings.Add(new SiteSettings
+        {
+            Key = key,
+            Value = json,
+            Description = "محتوى الصفحة الرئيسية (سلايدر، بانر، إحصائيات، عن، آراء، دعوة للتسجيل)"
+        });
+        await context.SaveChangesAsync();
     }
 }

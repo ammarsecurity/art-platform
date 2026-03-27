@@ -12,25 +12,25 @@
         <button v-for="level in levels" :key="level.value"
           @click="activeLevel = level.value; fetchCourses()"
           class="px-4 py-2 rounded-full border text-sm font-medium transition-all"
-          :class="activeLevel === level.value ? 'bg-gold border-gold text-dark' : 'border-dark-300 text-gray-400 hover:border-gold hover:text-gold'">
+          :class="activeLevel === level.value ? 'bg-gold border-gold text-dark' : 'border-line text-fg-mute hover:border-gold hover:text-gold'">
           {{ level.label }}
         </button>
       </div>
       <div class="mr-auto relative">
         <input v-model="search" @input="debouncedFetch" type="text" placeholder="ابحث عن دورة..."
           class="input-field pr-10 w-72 text-sm py-2">
-        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-fg-dim">🔍</span>
       </div>
     </div>
 
     <!-- Loading -->
     <div v-if="courseStore.loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="i in 6" :key="i" class="rounded-2xl bg-dark-200 animate-pulse h-80"></div>
+      <div v-for="i in 6" :key="i" class="rounded-2xl bg-input animate-pulse h-80"></div>
     </div>
 
     <div v-else-if="!courseStore.courses.length" class="text-center py-24">
       <div class="text-6xl mb-4">🎓</div>
-      <p class="text-gray-400 text-xl">لا توجد دورات متاحة حالياً</p>
+      <p class="text-fg-mute text-xl">لا توجد دورات متاحة حالياً</p>
     </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

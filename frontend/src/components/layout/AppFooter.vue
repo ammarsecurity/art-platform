@@ -1,44 +1,82 @@
 <template>
-  <footer class="bg-dark-100 border-t border-dark-300 mt-20">
+  <footer class="bg-surface border-t border-line mt-20">
     <div class="max-w-7xl mx-auto px-4 py-16">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+      <div class="flex flex-col lg:flex-row flex-wrap gap-10 lg:gap-12 mb-12">
         <!-- Brand -->
-        <div class="md:col-span-2">
+        <div class="w-full lg:max-w-md lg:flex-shrink-0">
           <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
-              <span class="text-dark font-bold text-lg">ف</span>
-            </div>
-            <span class="text-xl font-bold text-white">منصة الفن</span>
+            <SiteLogoMark box-class="w-10 h-10 rounded-xl" text-class="text-lg" :letter="ft.brandLetter" />
+            <span class="text-xl font-bold text-fg">{{ ft.brandTitle }}</span>
           </div>
-          <p class="text-gray-400 leading-relaxed max-w-sm">
-            منصة عربية متخصصة للفنون البصرية والتعليم الإبداعي. استكشف أعمال الفنانين وتعلم مهاراتك من أفضل الأساتذة.
+          <p class="text-fg-mute leading-relaxed max-w-sm">
+            {{ ft.brandDescription }}
           </p>
-          <div class="flex gap-4 mt-6">
-            <a v-for="social in socials" :key="social.name" href="#"
-              class="w-10 h-10 rounded-lg bg-dark-200 border border-dark-300 flex items-center justify-center text-gray-400 hover:text-gold hover:border-gold/40 transition-all duration-300">
+          <div class="flex gap-4 mt-6 flex-wrap">
+            <a
+              v-for="(social, i) in ft.socialIcons"
+              :key="i"
+              :href="socialHref(social.url)"
+              :target="isExternal(social.url) ? '_blank' : '_self'"
+              :rel="isExternal(social.url) ? 'noopener noreferrer' : undefined"
+              class="w-10 h-10 rounded-lg bg-input border border-line flex items-center justify-center text-fg-mute hover:text-gold hover:border-gold/40 transition-all duration-300"
+              :title="social.name || ''"
+            >
               {{ social.icon }}
             </a>
           </div>
         </div>
 
-        <!-- Links -->
-        <div v-for="section in footerLinks" :key="section.title">
-          <h4 class="text-white font-semibold mb-4">{{ section.title }}</h4>
+        <!-- Link columns -->
+        <div
+          v-for="(section, si) in ft.columns"
+          :key="si"
+          class="min-w-[10rem] flex-1"
+        >
+          <h4 class="text-fg font-semibold mb-4">{{ section.title }}</h4>
           <ul class="space-y-3">
-            <li v-for="link in section.links" :key="link.to">
-              <RouterLink :to="link.to" class="text-gray-400 hover:text-gold transition-colors text-sm">
+            <li v-for="(link, li) in section.links" :key="li">
+              <RouterLink
+                v-if="!isExternal(link.href)"
+                :to="link.href || '/'"
+                class="text-fg-mute hover:text-gold transition-colors text-sm"
+              >
                 {{ link.label }}
               </RouterLink>
+              <a
+                v-else
+                :href="link.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-fg-mute hover:text-gold transition-colors text-sm"
+              >
+                {{ link.label }}
+              </a>
             </li>
           </ul>
         </div>
       </div>
 
-      <div class="border-t border-dark-300 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-        <p>© {{ new Date().getFullYear() }} منصة الفن. جميع الحقوق محفوظة.</p>
-        <div class="flex gap-6">
-          <RouterLink to="/privacy" class="hover:text-gray-300 transition-colors">سياسة الخصوصية</RouterLink>
-          <RouterLink to="/terms" class="hover:text-gray-300 transition-colors">شروط الاستخدام</RouterLink>
+      <div class="border-t border-line pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-fg-dim">
+        <p>© {{ year }} {{ ft.copyrightLine }}</p>
+        <div class="flex flex-wrap gap-6 justify-center">
+          <template v-for="(leg, i) in ft.legalLinks" :key="i">
+            <RouterLink
+              v-if="!isExternal(leg.href)"
+              :to="leg.href || '/'"
+              class="hover:text-fg-soft transition-colors"
+            >
+              {{ leg.label }}
+            </RouterLink>
+            <a
+              v-else
+              :href="leg.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hover:text-fg-soft transition-colors"
+            >
+              {{ leg.label }}
+            </a>
+          </template>
         </div>
       </div>
     </div>
@@ -46,31 +84,74 @@
 </template>
 
 <script setup>
-const socials = [
-  { name: 'instagram', icon: '📷' },
-  { name: 'twitter', icon: '𝕏' },
-  { name: 'youtube', icon: '▶' },
-  { name: 'behance', icon: 'Be' },
-]
+import { computed, onMounted } from 'vue'
+import { useSiteSettingsStore } from '@/stores/siteSettings'
+import SiteLogoMark from './SiteLogoMark.vue'
 
-const footerLinks = [
-  {
-    title: 'الموقع',
-    links: [
-      { to: '/portfolio', label: 'المعرض الفني' },
-      { to: '/courses', label: 'الدورات التعليمية' },
-      { to: '/blog', label: 'المدونة' },
-      { to: '/about', label: 'عن الفنان' },
+const site = useSiteSettingsStore()
+const year = new Date().getFullYear()
+
+function fallbackFooter() {
+  return {
+    brandLetter: 'ف',
+    brandTitle: 'منصة الفن',
+    brandDescription:
+      'منصة عربية متخصصة للفنون البصرية والتعليم الإبداعي. استكشف أعمال الفنانين وتعلم مهاراتك من أفضل الأساتذة.',
+    socialIcons: [
+      { icon: '📷', url: 'https://instagram.com', name: 'Instagram' },
+      { icon: '𝕏', url: 'https://twitter.com', name: 'Twitter' },
+      { icon: '▶', url: 'https://youtube.com', name: 'YouTube' },
+      { icon: 'Be', url: 'https://behance.net', name: 'Behance' }
+    ],
+    columns: [
+      {
+        title: 'الموقع',
+        links: [
+          { label: 'المعرض الفني', href: '/portfolio' },
+          { label: 'الدورات التعليمية', href: '/courses' },
+          { label: 'المدونة', href: '/blog' },
+          { label: 'عن الفنان', href: '/about' }
+        ]
+      },
+      {
+        title: 'الدعم',
+        links: [
+          { label: 'تواصل معنا', href: '/contact' },
+          { label: 'الأسئلة الشائعة', href: '/faq' },
+          { label: 'تسجيل الدخول', href: '/login' },
+          { label: 'إنشاء حساب', href: '/register' }
+        ]
+      }
+    ],
+    copyrightLine: 'منصة الفن. جميع الحقوق محفوظة.',
+    legalLinks: [
+      { label: 'سياسة الخصوصية', href: '/privacy' },
+      { label: 'شروط الاستخدام', href: '/terms' }
     ]
-  },
-  {
-    title: 'الدعم',
-    links: [
-      { to: '/contact', label: 'تواصل معنا' },
-      { to: '/faq', label: 'الأسئلة الشائعة' },
-      { to: '/login', label: 'تسجيل الدخول' },
-      { to: '/register', label: 'إنشاء حساب' },
-    ]
-  },
-]
+  }
+}
+
+const ft = computed(() => {
+  const f = site.data?.footer
+  const d = fallbackFooter()
+  if (!f) return d
+  return {
+    ...d,
+    ...f,
+    socialIcons: Array.isArray(f.socialIcons) && f.socialIcons.length ? f.socialIcons : d.socialIcons,
+    columns: Array.isArray(f.columns) && f.columns.length ? f.columns : d.columns,
+    legalLinks: Array.isArray(f.legalLinks) && f.legalLinks.length ? f.legalLinks : d.legalLinks
+  }
+})
+
+function isExternal(href) {
+  return /^https?:\/\//i.test(String(href || '').trim())
+}
+
+function socialHref(url) {
+  const u = String(url || '').trim()
+  return u || '#'
+}
+
+onMounted(() => site.load())
 </script>

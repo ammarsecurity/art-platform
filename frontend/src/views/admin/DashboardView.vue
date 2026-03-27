@@ -1,8 +1,8 @@
 <template>
   <div class="animate-fade-in">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-white">لوحة التحكم</h1>
-      <p class="text-gray-400 mt-1">مرحباً {{ auth.user?.name }}، إليك ملخص اليوم</p>
+      <h1 class="text-3xl font-bold text-fg">لوحة التحكم</h1>
+      <p class="text-fg-mute mt-1">مرحباً {{ auth.user?.name }}، إليك ملخص اليوم</p>
     </div>
 
     <!-- Stats Grid -->
@@ -16,8 +16,8 @@
           <span class="text-2xl">{{ stat.icon }}</span>
           <span class="text-xs badge-gold">{{ stat.trend }}</span>
         </div>
-        <div class="text-3xl font-bold text-white mb-1">{{ stat.value }}</div>
-        <div class="text-gray-400 text-sm">{{ stat.label }}</div>
+        <div class="text-3xl font-bold text-fg mb-1">{{ stat.value }}</div>
+        <div class="text-fg-mute text-sm">{{ stat.label }}</div>
       </div>
     </div>
 
@@ -25,18 +25,18 @@
     <div class="grid lg:grid-cols-3 gap-6">
       <!-- Recent Activity -->
       <div class="lg:col-span-2 card p-6">
-        <h2 class="text-xl font-bold text-white mb-6">النشاط الأخير</h2>
-        <div v-if="!stats?.recentActivity?.length" class="text-gray-500 text-center py-8">لا يوجد نشاط حديث</div>
+        <h2 class="text-xl font-bold text-fg mb-6">النشاط الأخير</h2>
+        <div v-if="!stats?.recentActivity?.length" class="text-fg-dim text-center py-8">لا يوجد نشاط حديث</div>
         <div class="space-y-4">
           <div v-for="activity in stats?.recentActivity" :key="activity.title + activity.date"
-            class="flex items-center gap-4 p-3 rounded-xl hover:bg-dark-200 transition-colors">
+            class="flex items-center gap-4 p-3 rounded-xl hover:bg-input transition-colors">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
               :class="activity.type === 'artwork' ? 'bg-gold/10 text-gold' : 'bg-blue-500/10 text-blue-400'">
               {{ activity.type === 'artwork' ? '🖼️' : '🎓' }}
             </div>
             <div class="flex-1">
-              <p class="text-white text-sm font-medium">{{ activity.title }}</p>
-              <p class="text-gray-500 text-xs">{{ formatDate(activity.date) }}</p>
+              <p class="text-fg text-sm font-medium">{{ activity.title }}</p>
+              <p class="text-fg-dim text-xs">{{ formatDate(activity.date) }}</p>
             </div>
             <span class="badge text-xs" :class="activity.type === 'artwork' ? 'badge-gold' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'">
               {{ activity.type === 'artwork' ? 'عمل فني' : 'دورة' }}
@@ -47,15 +47,15 @@
 
       <!-- Quick Actions -->
       <div class="card p-6">
-        <h2 class="text-xl font-bold text-white mb-6">إجراءات سريعة</h2>
+        <h2 class="text-xl font-bold text-fg mb-6">إجراءات سريعة</h2>
         <div class="space-y-3">
           <RouterLink v-for="action in quickActions" :key="action.to"
             :to="action.to"
-            class="flex items-center gap-3 p-4 rounded-xl bg-dark-200 hover:bg-dark-300 transition-colors group">
+            class="flex items-center gap-3 p-4 rounded-xl bg-input hover:bg-line transition-colors group">
             <span class="text-2xl">{{ action.icon }}</span>
             <div>
-              <p class="text-white text-sm font-medium group-hover:text-gold transition-colors">{{ action.label }}</p>
-              <p class="text-gray-500 text-xs">{{ action.desc }}</p>
+              <p class="text-fg text-sm font-medium group-hover:text-gold transition-colors">{{ action.label }}</p>
+              <p class="text-fg-dim text-xs">{{ action.desc }}</p>
             </div>
           </RouterLink>
         </div>
@@ -92,6 +92,7 @@ const statCards = computed(() => stats.value ? [
 ] : [])
 
 const quickActions = [
+  { icon: '⚙️', label: 'إعدادات الموقع', desc: 'الصفحة الرئيسية وآراء الطلاب', to: '/admin/settings' },
   { icon: '🖼️', label: 'إضافة عمل فني', desc: 'رفع لوحة جديدة', to: '/admin/artworks/new' },
   { icon: '🎓', label: 'إضافة دورة', desc: 'إنشاء دورة تعليمية', to: '/admin/courses/new' },
   { icon: '✍️', label: 'كتابة مقال', desc: 'نشر في المدونة', to: '/admin/blog' },

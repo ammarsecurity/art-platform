@@ -19,6 +19,7 @@ public interface IDashboardService
 public interface IFileService
 {
     Task<string> UploadImageAsync(Microsoft.AspNetCore.Http.IFormFile file, string folder);
+    Task<string> UploadVideoAsync(Microsoft.AspNetCore.Http.IFormFile file, string folder);
     Task<bool> DeleteFileAsync(string filePath);
     string GetFileUrl(string filePath);
 }

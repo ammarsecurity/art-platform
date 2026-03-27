@@ -1,53 +1,54 @@
 <template>
-  <div class="min-h-screen bg-dark flex items-center justify-center p-4">
+  <div class="min-h-screen bg-page flex items-center justify-center p-4 relative">
+    <div class="absolute top-4 end-4 z-10">
+      <ThemeToggle />
+    </div>
     <div class="w-full max-w-md">
       <div class="text-center mb-10">
         <RouterLink to="/" class="inline-flex items-center gap-3 mb-6">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center shadow-lg shadow-gold/30">
-            <span class="text-dark font-bold text-xl">ف</span>
-          </div>
-          <span class="text-2xl font-bold text-white">منصة الفن</span>
+          <SiteLogoMark box-class="w-12 h-12 rounded-xl" text-class="text-xl" />
+          <span class="text-2xl font-bold text-fg">{{ site.siteName }}</span>
         </RouterLink>
-        <h1 class="text-3xl font-bold text-white">إنشاء حساب جديد</h1>
-        <p class="text-gray-400 mt-2">انضم إلى مجتمع الفنانين</p>
+        <h1 class="text-3xl font-bold text-fg">إنشاء حساب جديد</h1>
+        <p class="text-fg-mute mt-2">انضم إلى مجتمع الفنانين</p>
       </div>
 
       <div class="card p-8">
         <form @submit.prevent="handleRegister" class="space-y-5">
           <div>
-            <label class="block text-sm text-gray-400 mb-2">الاسم الكامل *</label>
+            <label class="block text-sm text-fg-mute mb-2">الاسم الكامل *</label>
             <input v-model="form.name" type="text" class="input-field" placeholder="اسمك الكامل" required minlength="2">
           </div>
           <div>
-            <label class="block text-sm text-gray-400 mb-2">رقم الهاتف *</label>
+            <label class="block text-sm text-fg-mute mb-2">رقم الهاتف *</label>
             <input v-model="form.phone" type="tel" class="input-field" placeholder="05xxxxxxxx" required dir="ltr">
           </div>
           <div>
-            <label class="block text-sm text-gray-400 mb-2">كلمة المرور *</label>
+            <label class="block text-sm text-fg-mute mb-2">كلمة المرور *</label>
             <input v-model="form.password" type="password" class="input-field" placeholder="8 أحرف على الأقل" required minlength="8">
             <!-- Password strength -->
             <div class="flex gap-1 mt-2">
               <div v-for="i in 4" :key="i" class="h-1 flex-1 rounded-full transition-colors"
-                :class="passwordStrength >= i ? strengthColor : 'bg-dark-300'"></div>
+                :class="passwordStrength >= i ? strengthColor : 'bg-line'"></div>
             </div>
             <p class="text-xs mt-1" :class="strengthText.class">{{ strengthText.label }}</p>
           </div>
 
           <label class="flex items-start gap-3 cursor-pointer">
             <input v-model="agreed" type="checkbox" class="mt-1 accent-gold" required>
-            <span class="text-sm text-gray-400">
+            <span class="text-sm text-fg-mute">
               أوافق على <a href="#" class="text-gold">شروط الاستخدام</a> و
               <a href="#" class="text-gold">سياسة الخصوصية</a>
             </span>
           </label>
 
           <button type="submit" :disabled="auth.loading || !agreed" class="btn-primary w-full justify-center py-4 text-lg">
-            <span v-if="auth.loading" class="inline-block w-5 h-5 border-2 border-dark/30 border-t-dark rounded-full animate-spin ml-2"></span>
+            <span v-if="auth.loading" class="inline-block w-5 h-5 border-2 border-line/40 border-t-gold rounded-full animate-spin ml-2"></span>
             {{ auth.loading ? 'جارٍ الإنشاء...' : 'إنشاء الحساب 🎨' }}
           </button>
         </form>
 
-        <p class="text-center text-gray-400 mt-6 text-sm">
+        <p class="text-center text-fg-mute mt-6 text-sm">
           لديك حساب بالفعل؟
           <RouterLink to="/login" class="text-gold hover:text-gold-light font-medium">تسجيل الدخول</RouterLink>
         </p>
@@ -59,8 +60,12 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useSiteSettingsStore } from '@/stores/siteSettings'
+import SiteLogoMark from '@/components/layout/SiteLogoMark.vue'
+import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 
 const auth = useAuthStore()
+const site = useSiteSettingsStore()
 const agreed = ref(false)
 const form = reactive({ name: '', phone: '', password: '' })
 

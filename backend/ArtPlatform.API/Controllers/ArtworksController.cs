@@ -2,6 +2,7 @@ using ArtPlatform.Application.DTOs;
 using ArtPlatform.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace ArtPlatform.API.Controllers;
 
@@ -29,6 +30,15 @@ public class ArtworksController : ControllerBase
         return Ok(new { success = true, data = result });
     }
 
+    /// <summary>تفاصيل عمل فني بالمعرّف (لوحة الإدارة) — لا يتعارض مع الـ slug الرقمي</summary>
+    [HttpGet("by-id/{id:int}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var artwork = await _artworkService.GetArtworkByIdAsync(id);
+        return artwork == null ? NotFound(new { success = false, message = "العمل الفني غير موجود" })
+                               : Ok(new { success = true, data = artwork });
+    }
+
     /// <summary>تفاصيل عمل فني بالـ Slug</summary>
     [HttpGet("{slug}")]
     public async Task<IActionResult> GetBySlug(string slug)
@@ -45,7 +55,8 @@ public class ArtworksController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var artwork = await _artworkService.CreateArtworkAsync(request, image);
-        return CreatedAtAction(nameof(GetBySlug), new { slug = artwork.Slug }, new { success = true, data = artwork });
+        var location = $"/api/artworks/{Uri.EscapeDataString(artwork.Slug)}";
+        return Created(location, new { success = true, data = artwork });
     }
 
     /// <summary>تحديث عمل فني (Admin)</summary>

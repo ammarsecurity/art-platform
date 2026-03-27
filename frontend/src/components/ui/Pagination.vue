@@ -3,7 +3,7 @@
     <button
       @click="emit('change', current - 1)"
       :disabled="current <= 1"
-      class="px-4 py-2 rounded-lg border border-dark-300 text-gray-400 hover:border-gold hover:text-gold transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+      class="px-4 py-2 rounded-lg border border-line text-fg-mute hover:border-gold hover:text-gold transition-all disabled:opacity-30 disabled:cursor-not-allowed"
     >← السابق</button>
 
     <div class="flex gap-2">
@@ -13,15 +13,15 @@
         :class="page === current
           ? 'bg-gold border-gold text-dark font-bold'
           : page === '...'
-            ? 'border-transparent text-gray-500 cursor-default'
-            : 'border-dark-300 text-gray-400 hover:border-gold hover:text-gold'"
+            ? 'border-transparent text-fg-dim cursor-default'
+            : 'border-line text-fg-mute hover:border-gold hover:text-gold'"
       >{{ page }}</button>
     </div>
 
     <button
       @click="emit('change', current + 1)"
       :disabled="current >= total"
-      class="px-4 py-2 rounded-lg border border-dark-300 text-gray-400 hover:border-gold hover:text-gold transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+      class="px-4 py-2 rounded-lg border border-line text-fg-mute hover:border-gold hover:text-gold transition-all disabled:opacity-30 disabled:cursor-not-allowed"
     >التالي →</button>
   </div>
 </template>

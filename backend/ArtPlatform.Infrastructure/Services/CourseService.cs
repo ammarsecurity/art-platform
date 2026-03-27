@@ -1,3 +1,4 @@
+using System;
 using ArtPlatform.Application.DTOs;
 using ArtPlatform.Application.Interfaces;
 using ArtPlatform.Domain.Entities;
@@ -12,11 +13,13 @@ public class CourseService : ICourseService
 {
     private readonly AppDbContext _context;
     private readonly IFileService _fileService;
+    private readonly IMediaUrlBuilder _mediaUrl;
 
-    public CourseService(AppDbContext context, IFileService fileService)
+    public CourseService(AppDbContext context, IFileService fileService, IMediaUrlBuilder mediaUrl)
     {
         _context = context;
         _fileService = fileService;
+        _mediaUrl = mediaUrl;
     }
 
     public async Task<PagedResult<CourseDto>> GetCoursesAsync(ArtworkListRequest request, int? userId = null)
@@ -33,8 +36,17 @@ public class CourseService : ICourseService
         if (!string.IsNullOrWhiteSpace(request.Search))
             query = query.Where(c => c.Title.Contains(request.Search));
 
-        if (!string.IsNullOrWhiteSpace(request.Status) && Enum.TryParse<CourseStatus>(request.Status, out var status))
-            query = query.Where(c => c.Status == status);
+        if (!string.IsNullOrWhiteSpace(request.Status))
+        {
+            if (request.Status.Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                /* لا تصفية — لوحة الإدارة ترسل status=all */
+            }
+            else if (Enum.TryParse<CourseStatus>(request.Status, true, out var st))
+                query = query.Where(c => c.Status == st);
+            else
+                query = query.Where(c => c.Status == CourseStatus.Published);
+        }
         else
             query = query.Where(c => c.Status == CourseStatus.Published);
 
@@ -60,8 +72,8 @@ public class CourseService : ICourseService
         var items = courses.Select(c => new CourseDto
         {
             Id = c.Id, Title = c.Title, Slug = c.Slug,
-            ShortDescription = c.ShortDescription, ThumbnailUrl = c.ThumbnailUrl,
-            PreviewVideoUrl = c.PreviewVideoUrl, Price = c.Price,
+            ShortDescription = c.ShortDescription, ThumbnailUrl = _mediaUrl.ToAbsolute(c.ThumbnailUrl),
+            PreviewVideoUrl = _mediaUrl.ToAbsolute(c.PreviewVideoUrl), Price = c.Price,
             DurationMinutes = c.DurationMinutes, Level = c.Level.ToString(),
             Status = c.Status.ToString(), IsFeatured = c.IsFeatured,
             CategoryId = c.CategoryId, CategoryName = c.Category?.Name ?? "",
@@ -101,7 +113,8 @@ public class CourseService : ICourseService
         {
             Id = course.Id, Title = course.Title, Slug = course.Slug,
             Description = course.Description, ShortDescription = course.ShortDescription,
-            ThumbnailUrl = course.ThumbnailUrl, PreviewVideoUrl = course.PreviewVideoUrl,
+            ThumbnailUrl = _mediaUrl.ToAbsolute(course.ThumbnailUrl),
+            PreviewVideoUrl = _mediaUrl.ToAbsolute(course.PreviewVideoUrl),
             Price = course.Price, DurationMinutes = course.DurationMinutes,
             Level = course.Level.ToString(), Status = course.Status.ToString(),
             IsFeatured = course.IsFeatured, CategoryId = course.CategoryId,
@@ -116,10 +129,47 @@ public class CourseService : ICourseService
                 .Select(l => new LessonDto
                 {
                     Id = l.Id, Title = l.Title, Description = l.Description,
-                    VideoUrl = l.VideoUrl, DurationMinutes = l.DurationMinutes,
+                    VideoUrl = _mediaUrl.ToAbsolute(l.VideoUrl), DurationMinutes = l.DurationMinutes,
                     SortOrder = l.SortOrder, IsPreview = l.IsPreview,
                     IsCompleted = progressMap.TryGetValue(l.Id, out var lp) && lp.IsCompleted,
                     WatchedSeconds = progressMap.TryGetValue(l.Id, out var lp2) ? lp2.WatchedSeconds : 0
+                }).ToList()
+        };
+    }
+
+    public async Task<CourseDetailDto?> GetCourseByIdAsync(int id)
+    {
+        var course = await _context.Courses
+            .Include(c => c.Category)
+            .Include(c => c.Lessons)
+            .Include(c => c.Enrollments)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (course == null) return null;
+
+        return new CourseDetailDto
+        {
+            Id = course.Id, Title = course.Title, Slug = course.Slug,
+            Description = course.Description, ShortDescription = course.ShortDescription,
+            ThumbnailUrl = _mediaUrl.ToAbsolute(course.ThumbnailUrl),
+            PreviewVideoUrl = _mediaUrl.ToAbsolute(course.PreviewVideoUrl),
+            Price = course.Price, DurationMinutes = course.DurationMinutes,
+            Level = course.Level.ToString(), Status = course.Status.ToString(),
+            IsFeatured = course.IsFeatured, CategoryId = course.CategoryId,
+            CategoryName = course.Category?.Name ?? "",
+            LessonCount = course.Lessons.Count(l => l.IsActive),
+            EnrollmentCount = course.Enrollments.Count,
+            IsEnrolled = false,
+            CreatedAt = course.CreatedAt,
+            Lessons = course.Lessons
+                .Where(l => l.IsActive)
+                .OrderBy(l => l.SortOrder)
+                .Select(l => new LessonDto
+                {
+                    Id = l.Id, Title = l.Title, Description = l.Description,
+                    VideoUrl = _mediaUrl.ToAbsolute(l.VideoUrl), DurationMinutes = l.DurationMinutes,
+                    SortOrder = l.SortOrder, IsPreview = l.IsPreview,
+                    IsCompleted = false, WatchedSeconds = 0
                 }).ToList()
         };
     }
@@ -167,6 +217,18 @@ public class CourseService : ICourseService
 
         await _context.SaveChangesAsync();
         return (await GetCourseBySlugAsync(course.Slug)) as CourseDto;
+    }
+
+    public async Task<bool> SetCourseStatusAsync(int id, string status)
+    {
+        if (!Enum.TryParse<CourseStatus>(status, true, out var st))
+            return false;
+        var course = await _context.Courses.FindAsync(id);
+        if (course == null) return false;
+        course.Status = st;
+        course.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteCourseAsync(int id)
@@ -232,12 +294,17 @@ public class CourseService : ICourseService
         }
     }
 
-    public async Task<LessonDto> AddLessonAsync(CreateLessonRequest request)
+    public async Task<LessonDto> AddLessonAsync(CreateLessonRequest request, IFormFile? videoFile = null)
     {
+        if (videoFile != null && videoFile.Length > 0)
+            request.VideoUrl = await _fileService.UploadVideoAsync(videoFile, "lessons");
+        if (string.IsNullOrWhiteSpace(request.VideoUrl))
+            throw new ArgumentException("يرجى رفع ملف فيديو أو إدخال رابط (يوتيوب أو رابط مباشر)");
+
         var lesson = new Lesson
         {
             Title = request.Title, Description = request.Description,
-            VideoUrl = request.VideoUrl, DurationMinutes = request.DurationMinutes,
+            VideoUrl = request.VideoUrl.Trim(), DurationMinutes = request.DurationMinutes,
             SortOrder = request.SortOrder, IsPreview = request.IsPreview,
             CourseId = request.CourseId
         };
@@ -246,7 +313,39 @@ public class CourseService : ICourseService
         return new LessonDto
         {
             Id = lesson.Id, Title = lesson.Title, Description = lesson.Description,
-            VideoUrl = lesson.VideoUrl, DurationMinutes = lesson.DurationMinutes,
+            VideoUrl = _mediaUrl.ToAbsolute(lesson.VideoUrl), DurationMinutes = lesson.DurationMinutes,
+            SortOrder = lesson.SortOrder, IsPreview = lesson.IsPreview
+        };
+    }
+
+    public async Task<LessonDto?> UpdateLessonAsync(int lessonId, UpdateLessonRequest request, IFormFile? videoFile = null)
+    {
+        var lesson = await _context.Lessons.FindAsync(lessonId);
+        if (lesson == null || lesson.CourseId != request.CourseId)
+            return null;
+
+        string finalUrl;
+        if (videoFile != null && videoFile.Length > 0)
+            finalUrl = await _fileService.UploadVideoAsync(videoFile, "lessons");
+        else if (!string.IsNullOrWhiteSpace(request.VideoUrl))
+            finalUrl = request.VideoUrl.Trim();
+        else if (!string.IsNullOrWhiteSpace(lesson.VideoUrl))
+            finalUrl = lesson.VideoUrl.Trim();
+        else
+            throw new ArgumentException("يرجى إدخال رابط فيديو أو رفع ملف");
+
+        lesson.Title = request.Title.Trim();
+        lesson.Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
+        lesson.VideoUrl = finalUrl;
+        lesson.DurationMinutes = request.DurationMinutes;
+        lesson.SortOrder = request.SortOrder;
+        lesson.IsPreview = request.IsPreview;
+        await _context.SaveChangesAsync();
+
+        return new LessonDto
+        {
+            Id = lesson.Id, Title = lesson.Title, Description = lesson.Description,
+            VideoUrl = _mediaUrl.ToAbsolute(lesson.VideoUrl), DurationMinutes = lesson.DurationMinutes,
             SortOrder = lesson.SortOrder, IsPreview = lesson.IsPreview
         };
     }

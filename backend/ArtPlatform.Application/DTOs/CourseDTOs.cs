@@ -70,9 +70,30 @@ public class CreateLessonRequest
     public int CourseId { get; set; }
 }
 
+/// <summary>تعديل درس — CourseId للتحقق أن الدرس يتبع هذه الدورة</summary>
+public class UpdateLessonRequest
+{
+    [Required(ErrorMessage = "عنوان الدرس مطلوب")]
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    /// <summary>رابط جديد؛ إن وُجد ملف فيديو يُتجاهل ويُرفع الملف</summary>
+    public string? VideoUrl { get; set; }
+    public int DurationMinutes { get; set; } = 0;
+    public int SortOrder { get; set; } = 0;
+    public bool IsPreview { get; set; } = false;
+    [Required]
+    public int CourseId { get; set; }
+}
+
 public class UpdateProgressRequest
 {
     public int LessonId { get; set; }
     public int WatchedSeconds { get; set; }
     public bool IsCompleted { get; set; }
+}
+
+public class SetCourseStatusRequest
+{
+    [Required(ErrorMessage = "الحالة مطلوبة")]
+    public string Status { get; set; } = string.Empty;
 }

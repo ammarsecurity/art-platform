@@ -3,6 +3,7 @@ using ArtPlatform.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System;
 
 namespace ArtPlatform.API.Controllers;
 
@@ -34,6 +35,16 @@ public class CoursesController : ControllerBase
         return Ok(new { success = true, data = result });
     }
 
+    /// <summary>تفاصيل الدورة بالمعرّف (لوحة الإدارة — مسودة أو منشور)</summary>
+    [HttpGet("by-id/{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var course = await _courseService.GetCourseByIdAsync(id);
+        return course == null ? NotFound(new { success = false, message = "الدورة غير موجودة" })
+                              : Ok(new { success = true, data = course });
+    }
+
     [HttpGet("{slug}")]
     public async Task<IActionResult> GetBySlug(string slug)
     {
@@ -48,7 +59,9 @@ public class CoursesController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var course = await _courseService.CreateCourseAsync(request, thumbnail);
-        return Created($"/api/courses/{course.Slug}", new { success = true, data = course });
+        // Location يجب أن يكون ASCII فقط — الـ slug قد يحتوي عربية فيرفض Kestrel الترويسة
+        var location = $"/api/courses/{Uri.EscapeDataString(course.Slug)}";
+        return Created(location, new { success = true, data = course });
     }
 
     [HttpPut("{id:int}")]
@@ -57,6 +70,17 @@ public class CoursesController : ControllerBase
     {
         var course = await _courseService.UpdateCourseAsync(id, request, thumbnail);
         return course == null ? NotFound() : Ok(new { success = true, data = course });
+    }
+
+    /// <summary>تغيير حالة الدورة (مسودة / منشور / مؤرشف)</summary>
+    [HttpPatch("{id:int}/status")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> SetStatus(int id, [FromBody] SetCourseStatusRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var ok = await _courseService.SetCourseStatusAsync(id, request.Status);
+        return ok ? Ok(new { success = true, message = "تم تحديث الحالة" })
+                  : NotFound(new { success = false, message = "الدورة غير موجودة" });
     }
 
     [HttpDelete("{id:int}")]
@@ -87,11 +111,46 @@ public class CoursesController : ControllerBase
 
     [HttpPost("lessons")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> AddLesson([FromBody] CreateLessonRequest request)
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(524_288_000)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 524_288_000)]
+    public async Task<IActionResult> AddLesson([FromForm] CreateLessonRequest request, IFormFile? video)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-        var lesson = await _courseService.AddLessonAsync(request);
-        return Created("", new { success = true, data = lesson });
+        var hasFile = video != null && video.Length > 0;
+        var hasUrl = !string.IsNullOrWhiteSpace(request.VideoUrl);
+        if (!hasFile && !hasUrl)
+            return BadRequest(new { success = false, message = "يرجى رفع ملف فيديو أو إدخال رابط (يوتيوب أو رابط مباشر)" });
+        try
+        {
+            var lesson = await _courseService.AddLessonAsync(request, video);
+            return Created("", new { success = true, data = lesson });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { success = false, message = ex.Message });
+        }
+    }
+
+    [HttpPut("lessons/{id:int}")]
+    [Authorize(Roles = "Admin")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(524_288_000)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 524_288_000)]
+    public async Task<IActionResult> UpdateLesson(int id, [FromForm] UpdateLessonRequest request, IFormFile? video)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        try
+        {
+            var lesson = await _courseService.UpdateLessonAsync(id, request, video);
+            return lesson == null
+                ? NotFound(new { success = false, message = "الدرس غير موجود" })
+                : Ok(new { success = true, data = lesson });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { success = false, message = ex.Message });
+        }
     }
 
     [HttpDelete("lessons/{id:int}")]

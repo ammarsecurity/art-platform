@@ -15,6 +15,13 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:5567',
+        changeOrigin: true,
+        timeout: 600_000,
+        proxyTimeout: 600_000
+      },
+      // Static files from ASP.NET (wwwroot/uploads) — same origin as API
+      '/uploads': {
+        target: 'http://127.0.0.1:5567',
         changeOrigin: true
       }
     }

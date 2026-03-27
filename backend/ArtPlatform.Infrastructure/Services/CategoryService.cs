@@ -9,12 +9,17 @@ namespace ArtPlatform.Infrastructure.Services;
 public class CategoryService : ICategoryService
 {
     private readonly AppDbContext _context;
+    private readonly IMediaUrlBuilder _mediaUrl;
 
-    public CategoryService(AppDbContext context) => _context = context;
+    public CategoryService(AppDbContext context, IMediaUrlBuilder mediaUrl)
+    {
+        _context = context;
+        _mediaUrl = mediaUrl;
+    }
 
     public async Task<List<CategoryDto>> GetAllAsync()
     {
-        return await _context.Categories
+        var list = await _context.Categories
             .Where(c => c.IsActive)
             .OrderBy(c => c.SortOrder)
             .Select(c => new CategoryDto
@@ -25,6 +30,10 @@ public class CategoryService : ICategoryService
                 ArtworkCount = c.Artworks.Count(a => a.Status.ToString() == "Published"),
                 CourseCount = c.Courses.Count(co => co.Status.ToString() == "Published")
             }).ToListAsync();
+
+        foreach (var item in list)
+            item.ImageUrl = _mediaUrl.ToAbsolute(item.ImageUrl);
+        return list;
     }
 
     public async Task<CategoryDto?> GetByIdAsync(int id)
@@ -34,7 +43,7 @@ public class CategoryService : ICategoryService
         return new CategoryDto
         {
             Id = c.Id, Name = c.Name, Slug = c.Slug,
-            Description = c.Description, ImageUrl = c.ImageUrl,
+            Description = c.Description, ImageUrl = _mediaUrl.ToAbsolute(c.ImageUrl),
             SortOrder = c.SortOrder, IsActive = c.IsActive,
             ArtworkCount = c.Artworks.Count, CourseCount = c.Courses.Count
         };

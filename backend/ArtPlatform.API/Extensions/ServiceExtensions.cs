@@ -30,6 +30,7 @@ public static class ServiceExtensions
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IFileService, FileService>();
+        services.AddScoped<IMediaUrlBuilder, MediaUrlBuilder>();
 
         // JWT Authentication
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

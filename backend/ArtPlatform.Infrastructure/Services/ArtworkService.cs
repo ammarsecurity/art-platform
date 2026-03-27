@@ -12,11 +12,13 @@ public class ArtworkService : IArtworkService
 {
     private readonly AppDbContext _context;
     private readonly IFileService _fileService;
+    private readonly IMediaUrlBuilder _mediaUrl;
 
-    public ArtworkService(AppDbContext context, IFileService fileService)
+    public ArtworkService(AppDbContext context, IFileService fileService, IMediaUrlBuilder mediaUrl)
     {
         _context = context;
         _fileService = fileService;
+        _mediaUrl = mediaUrl;
     }
 
     public async Task<PagedResult<ArtworkDto>> GetArtworksAsync(ArtworkListRequest request)
@@ -48,11 +50,11 @@ public class ArtworkService : IArtworkService
         };
 
         var total = await query.CountAsync();
-        var items = await query
+        var rows = await query
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(a => MapToDto(a))
             .ToListAsync();
+        var items = rows.Select(MapToDto).ToList();
 
         return new PagedResult<ArtworkDto>
         {
@@ -145,13 +147,14 @@ public class ArtworkService : IArtworkService
 
     public async Task<List<ArtworkDto>> GetFeaturedArtworksAsync(int count = 6)
     {
-        return await _context.Artworks
+        var rows = await _context.Artworks
             .Include(a => a.Category)
+            .Include(a => a.ArtworkTags).ThenInclude(at => at.Tag)
             .Where(a => a.IsFeatured && a.Status == ArtworkStatus.Published)
             .OrderByDescending(a => a.CreatedAt)
             .Take(count)
-            .Select(a => MapToDto(a))
             .ToListAsync();
+        return rows.Select(MapToDto).ToList();
     }
 
     private async Task UpdateTagsAsync(int artworkId, List<string> tagNames)
@@ -188,11 +191,13 @@ public class ArtworkService : IArtworkService
             .Replace("/", "-");
     }
 
-    private static ArtworkDto MapToDto(Artwork a) => new()
+    private ArtworkDto MapToDto(Artwork a) => new()
     {
         Id = a.Id, Title = a.Title, Slug = a.Slug,
-        Description = a.Description, ImageUrl = a.ImageUrl,
-        ThumbnailUrl = a.ThumbnailUrl, Medium = a.Medium,
+        Description = a.Description,
+        ImageUrl = _mediaUrl.ToAbsolute(a.ImageUrl) ?? "",
+        ThumbnailUrl = _mediaUrl.ToAbsolute(a.ThumbnailUrl),
+        Medium = a.Medium,
         Dimensions = a.Dimensions, Year = a.Year,
         IsFeatured = a.IsFeatured, Status = a.Status.ToString(),
         CategoryId = a.CategoryId, CategoryName = a.Category?.Name ?? "",

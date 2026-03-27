@@ -8,56 +8,56 @@
           {{ auth.user?.name?.charAt(0) }}
         </div>
         <div>
-          <h1 class="text-2xl font-bold text-white">{{ auth.user?.name }}</h1>
-          <p class="text-gray-400 text-sm">{{ auth.user?.phone }}</p>
+          <h1 class="text-2xl font-bold text-fg">{{ auth.user?.name }}</h1>
+          <p class="text-fg-mute text-sm">{{ auth.user?.phone }}</p>
         </div>
       </div>
 
       <!-- Profile form -->
       <div class="card p-6 space-y-5">
-        <h2 class="text-lg font-semibold text-white border-b border-dark-300 pb-3">البيانات الشخصية</h2>
+        <h2 class="text-lg font-semibold text-fg border-b border-line pb-3">البيانات الشخصية</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
-            <label class="block text-sm text-gray-400 mb-2">الاسم الكامل *</label>
+            <label class="block text-sm text-fg-mute mb-2">الاسم الكامل *</label>
             <input v-model="form.name" type="text" class="input-field" placeholder="اسمك الكامل" required>
           </div>
           <div>
-            <label class="block text-sm text-gray-400 mb-2">رقم الهاتف</label>
+            <label class="block text-sm text-fg-mute mb-2">رقم الهاتف</label>
             <input v-model="form.phone" type="tel" class="input-field" placeholder="05xxxxxxxx" dir="ltr">
           </div>
         </div>
 
         <div>
-          <label class="block text-sm text-gray-400 mb-2">نبذة عنك</label>
+          <label class="block text-sm text-fg-mute mb-2">نبذة عنك</label>
           <textarea v-model="form.bio" class="textarea-field" rows="3"
             placeholder="اكتب نبذة مختصرة عن نفسك..."></textarea>
         </div>
 
         <button @click="saveProfile" :disabled="saving" class="btn-primary">
-          <span v-if="saving" class="inline-block w-4 h-4 border-2 border-dark/30 border-t-dark rounded-full animate-spin ml-2"></span>
+          <span v-if="saving" class="inline-block w-4 h-4 border-2 border-line/40 border-t-gold rounded-full animate-spin ml-2"></span>
           {{ saving ? 'جارٍ الحفظ...' : 'حفظ التغييرات' }}
         </button>
       </div>
 
       <!-- Change password -->
       <div class="card p-6 space-y-5">
-        <h2 class="text-lg font-semibold text-white border-b border-dark-300 pb-3">تغيير كلمة المرور</h2>
+        <h2 class="text-lg font-semibold text-fg border-b border-line pb-3">تغيير كلمة المرور</h2>
 
         <div>
-          <label class="block text-sm text-gray-400 mb-2">كلمة المرور الحالية</label>
+          <label class="block text-sm text-fg-mute mb-2">كلمة المرور الحالية</label>
           <input v-model="passwords.current" type="password" class="input-field" placeholder="••••••••">
         </div>
         <div>
-          <label class="block text-sm text-gray-400 mb-2">كلمة المرور الجديدة</label>
+          <label class="block text-sm text-fg-mute mb-2">كلمة المرور الجديدة</label>
           <input v-model="passwords.new" type="password" class="input-field" placeholder="8 أحرف على الأقل">
           <div class="flex gap-1 mt-2">
             <div v-for="i in 4" :key="i" class="h-1 flex-1 rounded-full transition-colors"
-              :class="passwordStrength >= i ? strengthColor : 'bg-dark-300'"></div>
+              :class="passwordStrength >= i ? strengthColor : 'bg-line'"></div>
           </div>
         </div>
         <div>
-          <label class="block text-sm text-gray-400 mb-2">تأكيد كلمة المرور الجديدة</label>
+          <label class="block text-sm text-fg-mute mb-2">تأكيد كلمة المرور الجديدة</label>
           <input v-model="passwords.confirm" type="password" class="input-field" placeholder="••••••••">
           <p v-if="passwords.new && passwords.confirm && passwords.new !== passwords.confirm"
             class="text-red-400 text-xs mt-1">كلمتا المرور غير متطابقتين</p>
@@ -71,18 +71,18 @@
 
       <!-- Account info -->
       <div class="card p-6">
-        <h2 class="text-lg font-semibold text-white border-b border-dark-300 pb-3 mb-4">معلومات الحساب</h2>
+        <h2 class="text-lg font-semibold text-fg border-b border-line pb-3 mb-4">معلومات الحساب</h2>
         <div class="space-y-3 text-sm">
           <div class="flex justify-between">
-            <span class="text-gray-500">نوع الحساب</span>
+            <span class="text-fg-dim">نوع الحساب</span>
             <span class="badge-gold">{{ auth.user?.role === 'Admin' ? 'مدير' : 'طالب' }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-500">تاريخ الانضمام</span>
-            <span class="text-gray-300">{{ joinDate }}</span>
+            <span class="text-fg-dim">تاريخ الانضمام</span>
+            <span class="text-fg-soft">{{ joinDate }}</span>
           </div>
           <div class="flex justify-between items-center">
-            <span class="text-gray-500">دوراتي</span>
+            <span class="text-fg-dim">دوراتي</span>
             <RouterLink to="/my-courses" class="text-gold hover:text-gold-light text-sm">
               عرض دوراتي ←
             </RouterLink>

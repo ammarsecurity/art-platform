@@ -12,11 +12,13 @@ public class BlogService : IBlogService
 {
     private readonly AppDbContext _context;
     private readonly IFileService _fileService;
+    private readonly IMediaUrlBuilder _mediaUrl;
 
-    public BlogService(AppDbContext context, IFileService fileService)
+    public BlogService(AppDbContext context, IFileService fileService, IMediaUrlBuilder mediaUrl)
     {
         _context = context;
         _fileService = fileService;
+        _mediaUrl = mediaUrl;
     }
 
     public async Task<PagedResult<BlogPostDto>> GetPostsAsync(ArtworkListRequest request)
@@ -26,7 +28,12 @@ public class BlogService : IBlogService
         if (!string.IsNullOrWhiteSpace(request.Search))
             query = query.Where(p => p.Title.Contains(request.Search));
 
-        if (!string.IsNullOrWhiteSpace(request.Status) && Enum.TryParse<PostStatus>(request.Status, out var status))
+        var statusRaw = request.Status?.Trim();
+        if (string.Equals(statusRaw, "all", StringComparison.OrdinalIgnoreCase))
+        {
+            /* لا نفلتر بالحالة — لوحة الإدارة */
+        }
+        else if (!string.IsNullOrWhiteSpace(statusRaw) && Enum.TryParse<PostStatus>(statusRaw, true, out var status))
             query = query.Where(p => p.Status == status);
         else
             query = query.Where(p => p.Status == PostStatus.Published);
@@ -34,9 +41,23 @@ public class BlogService : IBlogService
         if (request.IsFeatured.HasValue)
             query = query.Where(p => p.IsFeatured == request.IsFeatured.Value);
 
+        var sortDesc = string.IsNullOrWhiteSpace(request.SortOrder)
+            || request.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+        query = (request.SortBy?.ToLowerInvariant()) switch
+        {
+            "title" => sortDesc ? query.OrderByDescending(p => p.Title) : query.OrderBy(p => p.Title),
+            "createdat" => sortDesc ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
+            "publishedat" => sortDesc ? query.OrderByDescending(p => p.PublishedAt ?? p.CreatedAt) : query.OrderBy(p => p.PublishedAt ?? p.CreatedAt),
+            "sortorder" or "order" => sortDesc
+                ? query.OrderByDescending(p => p.SortOrder).ThenByDescending(p => p.PublishedAt ?? p.CreatedAt)
+                : query.OrderBy(p => p.SortOrder).ThenBy(p => p.PublishedAt ?? p.CreatedAt),
+            _ => sortDesc
+                ? query.OrderByDescending(p => p.SortOrder).ThenByDescending(p => p.PublishedAt ?? p.CreatedAt)
+                : query.OrderBy(p => p.SortOrder).ThenBy(p => p.PublishedAt ?? p.CreatedAt)
+        };
+
         var total = await query.CountAsync();
         var items = await query
-            .OrderByDescending(p => p.PublishedAt ?? p.CreatedAt)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(p => new BlogPostDto
@@ -44,8 +65,12 @@ public class BlogService : IBlogService
                 Id = p.Id, Title = p.Title, Slug = p.Slug, Excerpt = p.Excerpt,
                 FeaturedImageUrl = p.FeaturedImageUrl, Status = p.Status.ToString(),
                 IsFeatured = p.IsFeatured, ViewCount = p.ViewCount,
-                PublishedAt = p.PublishedAt, CreatedAt = p.CreatedAt
+                PublishedAt = p.PublishedAt, CreatedAt = p.CreatedAt,
+                SortOrder = p.SortOrder
             }).ToListAsync();
+
+        foreach (var p in items)
+            p.FeaturedImageUrl = _mediaUrl.ToAbsolute(p.FeaturedImageUrl);
 
         return new PagedResult<BlogPostDto> { Items = items, TotalCount = total, Page = request.Page, PageSize = request.PageSize };
     }
@@ -63,17 +88,24 @@ public class BlogService : IBlogService
         return MapToDetailDto(post);
     }
 
+    public async Task<BlogPostDetailDto?> GetPostByIdAsync(int id)
+    {
+        var post = await _context.BlogPosts.FindAsync(id);
+        return post == null ? null : MapToDetailDto(post);
+    }
+
     public async Task<BlogPostDetailDto> CreatePostAsync(CreateBlogPostRequest request, IFormFile? image)
     {
         var slug = await EnsureUniqueSlugAsync(GenerateSlug(request.Title));
         var imageUrl = image != null ? await _fileService.UploadImageAsync(image, "blog") : null;
-        var postStatus = Enum.TryParse<PostStatus>(request.Status, out var s) ? s : PostStatus.Draft;
+        var postStatus = Enum.TryParse<PostStatus>(request.Status, true, out var s) ? s : PostStatus.Draft;
 
         var post = new BlogPost
         {
             Title = request.Title, Slug = slug, Content = request.Content,
             Excerpt = request.Excerpt, FeaturedImageUrl = imageUrl,
             IsFeatured = request.IsFeatured, Status = postStatus,
+            SortOrder = request.SortOrder,
             MetaTitle = request.MetaTitle, MetaDescription = request.MetaDescription,
             PublishedAt = postStatus == PostStatus.Published ? DateTime.UtcNow : null
         };
@@ -97,9 +129,10 @@ public class BlogService : IBlogService
         post.IsFeatured = request.IsFeatured;
         post.MetaTitle = request.MetaTitle;
         post.MetaDescription = request.MetaDescription;
+        post.SortOrder = request.SortOrder;
         post.UpdatedAt = DateTime.UtcNow;
 
-        if (Enum.TryParse<PostStatus>(request.Status, out var status))
+        if (Enum.TryParse<PostStatus>(request.Status, true, out var status))
         {
             if (post.Status != PostStatus.Published && status == PostStatus.Published)
                 post.PublishedAt = DateTime.UtcNow;
@@ -128,13 +161,14 @@ public class BlogService : IBlogService
     private static string GenerateSlug(string text) =>
         text.ToLowerInvariant().Replace(" ", "-").Replace("_", "-").Replace("/", "-");
 
-    private static BlogPostDetailDto MapToDetailDto(BlogPost p) => new()
+    private BlogPostDetailDto MapToDetailDto(BlogPost p) => new()
     {
         Id = p.Id, Title = p.Title, Slug = p.Slug, Content = p.Content,
-        Excerpt = p.Excerpt, FeaturedImageUrl = p.FeaturedImageUrl,
+        Excerpt = p.Excerpt, FeaturedImageUrl = _mediaUrl.ToAbsolute(p.FeaturedImageUrl),
         Status = p.Status.ToString(), IsFeatured = p.IsFeatured,
         ViewCount = p.ViewCount, MetaTitle = p.MetaTitle,
-        MetaDescription = p.MetaDescription, PublishedAt = p.PublishedAt, CreatedAt = p.CreatedAt
+        MetaDescription = p.MetaDescription, PublishedAt = p.PublishedAt, CreatedAt = p.CreatedAt,
+        SortOrder = p.SortOrder
     };
 }
 
