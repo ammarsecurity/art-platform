@@ -25,7 +25,7 @@ export const useSiteSettingsStore = defineStore('siteSettings', () => {
     await load()
   }
 
-  const siteName = computed(() => data.value?.siteName || 'منصة الفن')
+  const siteName = computed(() => data.value?.siteName || 'مرتضى ثامر')
   /** رابط صورة الشعار بعد الحفظ من إعدادات الموقع */
   const siteLogoUrl = computed(() => data.value?.siteLogoUrl || '')
 

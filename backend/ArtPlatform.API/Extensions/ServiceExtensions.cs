@@ -70,9 +70,9 @@ public static class ServiceExtensions
         {
             c.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "منصة الفن - Art Platform API",
+                Title = "مرتضى ثامر - Art Platform API",
                 Version = "v1",
-                Description = "واجهة برمجية لمنصة الفن والتعلم"
+                Description = "واجهة برمجية لمرتضى ثامر والتعلم"
             });
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {

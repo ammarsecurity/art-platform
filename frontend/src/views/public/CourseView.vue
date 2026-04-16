@@ -194,6 +194,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useCourseStore } from '@/stores/courses'
 import { useAuthStore } from '@/stores/auth'
 import { resolveMediaUrl } from '@/utils/mediaUrl'
+import { usePageSeo } from '@/composables/usePageSeo'
+import { getSiteOrigin } from '@/config/site'
 
 const route = useRoute()
 const router = useRouter()
@@ -238,6 +240,43 @@ const levelClass = computed(
     }[course.value?.level] || '')
 )
 const levelLabel = computed(() => levelMap[course.value?.level] || '')
+
+const pageTitle = computed(() => course.value?.title || 'الدورات التعليمية')
+const pageDescription = computed(() => {
+  const c = course.value
+  if (!c) return ''
+  const s = (c.shortDescription && String(c.shortDescription).trim()) || ''
+  if (s) return s
+  const d = (c.description && String(c.description).trim()) || ''
+  return d.slice(0, 220)
+})
+
+usePageSeo({
+  title: pageTitle,
+  description: pageDescription,
+  imageUrl: thumbSrc,
+  ogType: 'article',
+  jsonLd: computed(() => {
+    const c = course.value
+    if (!c) return null
+    const origin = getSiteOrigin()
+    const url = origin ? `${origin}/courses/${encodeURIComponent(c.slug)}` : ''
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Course',
+      name: c.title,
+      description: pageDescription.value || undefined,
+      image: thumbSrc.value || undefined,
+      url,
+      offers: {
+        '@type': 'Offer',
+        price: c.price,
+        priceCurrency: 'IQD',
+        availability: 'https://schema.org/InStock',
+      },
+    }
+  }),
+})
 
 onMounted(() => courseStore.fetchBySlug(route.params.slug))
 

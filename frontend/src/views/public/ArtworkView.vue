@@ -57,12 +57,48 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useArtworkStore } from '@/stores/artworks'
 import { resolveMediaUrl } from '@/utils/mediaUrl'
+import { usePageSeo } from '@/composables/usePageSeo'
+import { getSiteOrigin } from '@/config/site'
 
 const route = useRoute()
 const store = useArtworkStore()
 const artwork = computed(() => store.currentArtwork)
 const loading = computed(() => store.loading)
 const imageSrc = computed(() => resolveMediaUrl(artwork.value?.imageUrl))
+
+const pageTitle = computed(() => artwork.value?.title || 'المعرض الفني')
+const pageDescription = computed(() => {
+  const a = artwork.value
+  if (!a) return ''
+  const d = (a.description && String(a.description).trim()) || ''
+  if (d) return d
+  const bits = [a.categoryName, a.medium, a.year].filter(Boolean)
+  return bits.length ? `${a.title} — ${bits.join(' · ')}` : a.title
+})
+
+usePageSeo({
+  title: pageTitle,
+  description: pageDescription,
+  imageUrl: imageSrc,
+  ogType: 'article',
+  jsonLd: computed(() => {
+    const a = artwork.value
+    if (!a) return null
+    const origin = getSiteOrigin()
+    const url = origin ? `${origin}/portfolio/${encodeURIComponent(a.slug)}` : ''
+    const img = imageSrc.value || undefined
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'VisualArtwork',
+      name: a.title,
+      description: pageDescription.value || undefined,
+      image: img,
+      url,
+      artMedium: a.medium || undefined,
+      ...(a.year ? { dateCreated: String(a.year) } : {}),
+    }
+  }),
+})
 
 onMounted(() => store.fetchBySlug(route.params.slug))
 </script>

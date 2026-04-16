@@ -94,7 +94,7 @@ const year = new Date().getFullYear()
 function fallbackFooter() {
   return {
     brandLetter: 'ف',
-    brandTitle: 'منصة الفن',
+    brandTitle: 'مرتضى ثامر',
     brandDescription:
       'منصة عربية متخصصة للفنون البصرية والتعليم الإبداعي. استكشف أعمال الفنانين وتعلم مهاراتك من أفضل الأساتذة.',
     socialIcons: [
@@ -123,7 +123,7 @@ function fallbackFooter() {
         ]
       }
     ],
-    copyrightLine: 'منصة الفن. جميع الحقوق محفوظة.',
+    copyrightLine: 'مرتضى ثامر. جميع الحقوق محفوظة.',
     legalLinks: [
       { label: 'سياسة الخصوصية', href: '/privacy' },
       { label: 'شروط الاستخدام', href: '/terms' }

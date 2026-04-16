@@ -83,10 +83,9 @@
 
       <div v-else class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         <ArtworkCard
-          v-for="(artwork, i) in artworkStore.featured"
+          v-for="artwork in artworkStore.featured"
           :key="artwork.id"
           :artwork="artwork"
-          :class="i === 0 ? 'row-span-2 col-span-1 md:col-span-1' : ''"
         />
       </div>
 
@@ -101,9 +100,12 @@
       <div class="max-w-7xl mx-auto px-4">
         <div class="grid md:grid-cols-2 gap-16 items-center">
           <div class="relative">
-            <div class="aspect-square rounded-3xl overflow-hidden bg-input">
-              <img :src="resolveMediaUrl(hp.about.imageUrl)" alt="" class="w-full h-full object-cover">
-            </div>
+            <div
+              class="relative aspect-square w-full min-h-0 min-w-0 overflow-hidden rounded-3xl bg-input bg-cover bg-center bg-no-repeat"
+              :style="aboutCoverStyle"
+              role="img"
+              aria-hidden="true"
+            />
             <div class="absolute -bottom-6 -left-6 card p-6 max-w-xs shadow-2xl">
               <div class="text-3xl font-bold text-gold">{{ hp.about.cardValue }}</div>
               <div class="text-fg-mute">{{ hp.about.cardLabel }}</div>
@@ -182,6 +184,7 @@
 
 <script setup>
 import { computed, onMounted } from 'vue'
+import { useHead } from '@unhead/vue'
 import { useArtworkStore } from '@/stores/artworks'
 import { useCourseStore } from '@/stores/courses'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
@@ -189,6 +192,7 @@ import ArtworkCard from '@/components/ui/ArtworkCard.vue'
 import CourseCard from '@/components/ui/CourseCard.vue'
 import HomeHeroSlider from '@/components/home/HomeHeroSlider.vue'
 import { resolveMediaUrl } from '@/utils/mediaUrl'
+import { getSiteOrigin } from '@/config/site'
 
 const artworkStore = useArtworkStore()
 const courseStore = useCourseStore()
@@ -196,7 +200,7 @@ const site = useSiteSettingsStore()
 
 function fallbackHome() {
   return {
-    heroBadge: '✨ منصة الفن العربية الأولى',
+    heroBadge: '✨ مرتضى ثامر العربية الأولى',
     heroTitleLine1: 'استكشف عالم',
     heroTitleLine2: 'الفن الإبداعي',
     heroParagraph: 'تعلم، استلهم، وأبدع مع أفضل الفنانين العرب. دورات تعليمية احترافية ومعرض فني استثنائي بين يديك.',
@@ -231,7 +235,7 @@ function fallbackHome() {
       items: [
         {
           imageUrl: 'https://picsum.photos/seed/arthome1/1920/960',
-          title: 'عالم الفن بين يديك',
+          title: 'مرتضى ثامر بين يديك',
           subtitle: 'تعلّم، استلهم، واطلق إبداعك مع محتوى عربي احترافي',
           linkUrl: '/courses',
           linkLabel: 'استكشف الدورات'
@@ -311,6 +315,33 @@ const sliderSlidesValid = computed(() =>
 const showHeroSlider = computed(
   () => hp.value.slider.enabled !== false && sliderSlidesValid.value.length > 0
 )
+
+const aboutCoverStyle = computed(() => {
+  const u = resolveMediaUrl(hp.value?.about?.imageUrl)
+  if (!u) return {}
+  return { backgroundImage: `url(${JSON.stringify(u)})` }
+})
+
+const webSiteJsonLd = computed(() => {
+  const u = getSiteOrigin()
+  if (!u) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: site.siteName,
+    url: u,
+    inLanguage: 'ar',
+    description: String(hp.value.heroParagraph || '').slice(0, 300) || undefined,
+  }
+})
+
+useHead({
+  script: computed(() => {
+    const node = webSiteJsonLd.value
+    if (!node) return []
+    return [{ type: 'application/ld+json', innerHTML: JSON.stringify(node) }]
+  }),
+})
 
 onMounted(async () => {
   await site.load()

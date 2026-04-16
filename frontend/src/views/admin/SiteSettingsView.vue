@@ -397,7 +397,7 @@ function emptySlider() {
 
 function emptyHome() {
   return {
-    heroBadge: '✨ منصة الفن العربية الأولى',
+    heroBadge: '✨ مرتضى ثامر العربية الأولى',
     heroTitleLine1: 'استكشف عالم',
     heroTitleLine2: 'الفن الإبداعي',
     heroParagraph: 'تعلم، استلهم، وأبدع مع أفضل الفنانين العرب.',

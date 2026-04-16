@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { createHead } from '@unhead/vue'
 import Vue3Toastify from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 import router from './router'
@@ -9,8 +10,10 @@ import { useThemeStore } from './stores/theme'
 
 const pinia = createPinia()
 const app = createApp(App)
+const head = createHead()
 
 app.use(pinia)
+app.use(head)
 
 // تطبيق الثيم قبل أول رسم (يتزامن مع index.html)
 const themeStore = useThemeStore(pinia)

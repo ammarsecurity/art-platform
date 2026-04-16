@@ -10,28 +10,184 @@ const router = createRouter({
       path: '/',
       component: () => import('@/components/layout/PublicLayout.vue'),
       children: [
-        { path: '', name: 'home', component: () => import('@/views/public/HomeView.vue') },
-        { path: 'portfolio', name: 'portfolio', component: () => import('@/views/public/PortfolioView.vue') },
-        { path: 'portfolio/:slug', name: 'artwork', component: () => import('@/views/public/ArtworkView.vue') },
-        { path: 'courses', name: 'courses', component: () => import('@/views/public/CoursesView.vue') },
-        { path: 'courses/:slug', name: 'course', component: () => import('@/views/public/CourseView.vue') },
-        { path: 'blog', name: 'blog', component: () => import('@/views/public/BlogView.vue') },
-        { path: 'blog/:slug', name: 'post', component: () => import('@/views/public/BlogPostView.vue') },
-        { path: 'about', name: 'about', component: () => import('@/views/public/AboutView.vue') },
-        { path: 'contact', name: 'contact', component: () => import('@/views/public/ContactView.vue') },
-        { path: 'terms', name: 'terms', component: () => import('@/views/public/TermsView.vue') },
-        { path: 'privacy', name: 'privacy', component: () => import('@/views/public/PrivacyView.vue') },
-        { path: 'profile', name: 'profile', component: () => import('@/views/user/ProfileView.vue'), meta: { requiresAuth: true } },
-        { path: 'my-courses', name: 'my-courses', component: () => import('@/views/user/MyCoursesView.vue'), meta: { requiresAuth: true } },
+        {
+          path: '',
+          name: 'home',
+          component: () => import('@/views/public/HomeView.vue'),
+          meta: {
+            seo: {
+              title: 'الرئيسية',
+              description:
+                'منصة عربية للفن والتعليم: معرض أعمال، دورات فيديو، ومدونة — تعلّم الفن واستلهم من محتوى احترافي.',
+            },
+          },
+        },
+        {
+          path: 'portfolio',
+          name: 'portfolio',
+          component: () => import('@/views/public/PortfolioView.vue'),
+          meta: {
+            seo: {
+              title: 'المعرض الفني',
+              description: 'تصفّح مجموعة من الأعمال الفنية بخامات وأسلوب متنوّع، مع تفاصيل كل عمل ووسيلة للتواصل.',
+            },
+          },
+        },
+        {
+          path: 'portfolio/:slug',
+          name: 'artwork',
+          component: () => import('@/views/public/ArtworkView.vue'),
+          meta: { seo: { delegate: true } },
+        },
+        {
+          path: 'courses',
+          name: 'courses',
+          component: () => import('@/views/public/CoursesView.vue'),
+          meta: {
+            seo: {
+              title: 'الدورات التعليمية',
+              description: 'دورات فيديو في الفنون والتصميم لمستويات مختلفة — تعلّم بالوتيرة التي تناسبك.',
+            },
+          },
+        },
+        {
+          path: 'courses/:slug',
+          name: 'course',
+          component: () => import('@/views/public/CourseView.vue'),
+          meta: { seo: { delegate: true } },
+        },
+        {
+          path: 'blog',
+          name: 'blog',
+          component: () => import('@/views/public/BlogView.vue'),
+          meta: {
+            seo: {
+              title: 'المدونة',
+              description: 'مقالات ونصائح حول الفن، الإبداع، والتعلّم الذاتي.',
+            },
+          },
+        },
+        {
+          path: 'blog/:slug',
+          name: 'post',
+          component: () => import('@/views/public/BlogPostView.vue'),
+          meta: { seo: { delegate: true } },
+        },
+        {
+          path: 'about',
+          name: 'about',
+          component: () => import('@/views/public/AboutView.vue'),
+          meta: {
+            seo: {
+              title: 'من نحن',
+              description: 'تعرّف على رؤية المنصة وقصة الفنان وراء المحتوى والدورات.',
+            },
+          },
+        },
+        {
+          path: 'contact',
+          name: 'contact',
+          component: () => import('@/views/public/ContactView.vue'),
+          meta: {
+            seo: {
+              title: 'اتصل بنا',
+              description: 'أرسل استفسارك أو طلبك بخصوص الأعمال أو الدورات — نرد في أقرب وقت.',
+            },
+          },
+        },
+        {
+          path: 'terms',
+          name: 'terms',
+          component: () => import('@/views/public/TermsView.vue'),
+          meta: {
+            seo: {
+              title: 'الشروط والأحكام',
+              description: 'شروط استخدام المنصة والخدمات التعليمية والمحتوى المنشور.',
+            },
+          },
+        },
+        {
+          path: 'privacy',
+          name: 'privacy',
+          component: () => import('@/views/public/PrivacyView.vue'),
+          meta: {
+            seo: {
+              title: 'سياسة الخصوصية',
+              description: 'كيف نتعامل مع بياناتك عند التسجيل والتصفح واستخدام الدورات.',
+            },
+          },
+        },
+        {
+          path: 'profile',
+          name: 'profile',
+          component: () => import('@/views/user/ProfileView.vue'),
+          meta: {
+            requiresAuth: true,
+            seo: {
+              title: 'الملف الشخصي',
+              description: 'إدارة بيانات حسابك على المنصة.',
+              noindex: true,
+            },
+          },
+        },
+        {
+          path: 'my-courses',
+          name: 'my-courses',
+          component: () => import('@/views/user/MyCoursesView.vue'),
+          meta: {
+            requiresAuth: true,
+            seo: {
+              title: 'دوراتي',
+              description: 'الدورات المسجّل بها وتقدّمك في التعلم.',
+              noindex: true,
+            },
+          },
+        },
       ]
     },
 
     // Learn route — standalone (no public navbar)
-    { path: '/courses/:slug/learn', name: 'learn', component: () => import('@/views/courses/LearnView.vue'), meta: { requiresAuth: true } },
+    {
+      path: '/courses/:slug/learn',
+      name: 'learn',
+      component: () => import('@/views/courses/LearnView.vue'),
+      meta: {
+        requiresAuth: true,
+        seo: {
+          title: 'مشاهدة الدرس',
+          description: 'واجهة التعلم للدورة.',
+          noindex: true,
+        },
+      },
+    },
 
     // Auth routes
-    { path: '/login', name: 'login', component: () => import('@/views/auth/LoginView.vue'), meta: { guestOnly: true } },
-    { path: '/register', name: 'register', component: () => import('@/views/auth/RegisterView.vue'), meta: { guestOnly: true } },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/auth/LoginView.vue'),
+      meta: {
+        guestOnly: true,
+        seo: {
+          title: 'تسجيل الدخول',
+          description: 'ادخل إلى حسابك للوصول إلى الدورات والملف الشخصي.',
+          noindex: true,
+        },
+      },
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: () => import('@/views/auth/RegisterView.vue'),
+      meta: {
+        guestOnly: true,
+        seo: {
+          title: 'إنشاء حساب',
+          description: 'سجّل حساباً جديداً للانضمام إلى الدورات والمجتمع.',
+          noindex: true,
+        },
+      },
+    },
 
     // Admin routes
     {
@@ -58,7 +214,17 @@ const router = createRouter({
       ]
     },
 
-    { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFound.vue') }
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/NotFound.vue'),
+      meta: {
+        seo: {
+          title: 'الصفحة غير موجودة',
+          description: 'لم يتم العثور على الصفحة المطلوبة.',
+        },
+      },
+    }
   ]
 })
 

@@ -3,7 +3,7 @@
     <div class="text-center mb-16">
       <div class="badge-gold mb-4">✍️ المدونة</div>
       <h1 class="section-title">مقالات وأفكار</h1>
-      <p class="section-subtitle">رؤى وإلهامات من عالم الفن</p>
+      <p class="section-subtitle">رؤى وإلهامات من مرتضى ثامر</p>
     </div>
 
     <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

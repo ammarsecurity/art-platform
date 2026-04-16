@@ -18,11 +18,48 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { blogApi } from '@/services/api'
 import { resolveMediaUrl } from '@/utils/mediaUrl'
+import { usePageSeo } from '@/composables/usePageSeo'
+import { getSiteOrigin } from '@/config/site'
+import { stripHtml } from '@/utils/stripHtml'
 
 const route = useRoute()
 const post = ref(null)
 
 const coverSrc = computed(() => resolveMediaUrl(post.value?.featuredImageUrl))
+
+const pageTitle = computed(() => post.value?.metaTitle || post.value?.title || 'المدونة')
+
+const pageDescription = computed(() => {
+  const p = post.value
+  if (!p) return ''
+  const meta = p.metaDescription && String(p.metaDescription).trim()
+  if (meta) return meta
+  const ex = p.excerpt && String(p.excerpt).trim()
+  if (ex) return ex
+  return stripHtml(p.content).slice(0, 200)
+})
+
+usePageSeo({
+  title: pageTitle,
+  description: pageDescription,
+  imageUrl: coverSrc,
+  ogType: 'article',
+  jsonLd: computed(() => {
+    const p = post.value
+    if (!p) return null
+    const origin = getSiteOrigin()
+    const url = origin ? `${origin}/blog/${encodeURIComponent(p.slug)}` : ''
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: p.title,
+      description: pageDescription.value || undefined,
+      image: coverSrc.value || undefined,
+      datePublished: p.publishedAt || undefined,
+      mainEntityOfPage: url ? { '@type': 'WebPage', '@id': url } : undefined,
+    }
+  }),
+})
 
 onMounted(async () => {
   const res = await blogApi.getBySlug(route.params.slug)

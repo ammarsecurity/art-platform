@@ -1,11 +1,13 @@
 <template>
-  <RouterLink :to="`/portfolio/${artwork.slug}`" class="card group block w-full overflow-hidden">
-    <div class="relative overflow-hidden aspect-square bg-input">
-      <img
-        :src="imageSrc"
-        :alt="artwork.title"
-        class="relative z-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-      >
+  <RouterLink :to="`/portfolio/${artwork.slug}`" class="card group block w-full min-w-0 overflow-hidden">
+    <div class="relative aspect-square w-full min-h-0 min-w-0 overflow-hidden bg-input">
+      <!-- خلفية cover تملأ المربع دون فراغات جانبية (أوثق من img + object-fit مع قواعد base) -->
+      <div
+        class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-transform duration-700 group-hover:scale-110"
+        :style="coverStyle"
+        role="img"
+        :aria-label="artwork.title"
+      />
       <!-- Overlay -->
       <div class="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
@@ -47,4 +49,10 @@ const props = defineProps({
 const imageSrc = computed(() =>
   resolveMediaUrl(props.artwork.thumbnailUrl || props.artwork.imageUrl)
 )
+
+const coverStyle = computed(() => {
+  const src = imageSrc.value
+  if (!src) return {}
+  return { backgroundImage: `url(${JSON.stringify(src)})` }
+})
 </script>

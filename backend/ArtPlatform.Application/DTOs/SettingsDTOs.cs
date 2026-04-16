@@ -3,7 +3,7 @@ namespace ArtPlatform.Application.DTOs;
 /// <summary>إعدادات الصفحة الرئيسية (مخزنة كـ JSON في SiteSettings.home_page_config)</summary>
 public class HomePageConfigDto
 {
-    public string HeroBadge { get; set; } = "✨ منصة الفن العربية الأولى";
+    public string HeroBadge { get; set; } = "✨ مرتضى ثامر العربية الأولى";
     public string HeroTitleLine1 { get; set; } = "استكشف عالم";
     public string HeroTitleLine2 { get; set; } = "الفن الإبداعي";
     public string HeroParagraph { get; set; } =
@@ -60,7 +60,7 @@ public class HomeSliderConfigDto
         new HomeSliderItemDto
         {
             ImageUrl = "https://picsum.photos/seed/arthome1/1920/960",
-            Title = "عالم الفن بين يديك",
+            Title = "مرتضى ثامر بين يديك",
             Subtitle = "تعلّم، استلهم، واطلق إبداعك مع محتوى عربي احترافي",
             LinkUrl = "/courses",
             LinkLabel = "استكشف الدورات"
@@ -194,7 +194,7 @@ public class ContactSocialLinkDto
 public class FooterConfigDto
 {
     public string BrandLetter { get; set; } = "ف";
-    public string BrandTitle { get; set; } = "منصة الفن";
+    public string BrandTitle { get; set; } = "مرتضى ثامر";
     public string BrandDescription { get; set; } =
         "منصة عربية متخصصة للفنون البصرية والتعليم الإبداعي. استكشف أعمال الفنانين وتعلم مهاراتك من أفضل الأساتذة.";
 
@@ -232,8 +232,8 @@ public class FooterConfigDto
         }
     ];
 
-    /// <summary>يُعرض بعد © والسنة — مثال: منصة الفن. جميع الحقوق محفوظة.</summary>
-    public string CopyrightLine { get; set; } = "منصة الفن. جميع الحقوق محفوظة.";
+    /// <summary>يُعرض بعد © والسنة — مثال: مرتضى ثامر. جميع الحقوق محفوظة.</summary>
+    public string CopyrightLine { get; set; } = "مرتضى ثامر. جميع الحقوق محفوظة.";
 
     public List<FooterLegalLinkDto> LegalLinks { get; set; } =
     [

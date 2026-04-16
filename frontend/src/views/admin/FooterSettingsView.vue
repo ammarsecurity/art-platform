@@ -73,7 +73,7 @@
         <h2 class="text-lg font-semibold text-fg border-b border-line pb-2">الشريط السفلي</h2>
         <div>
           <label class="block text-sm text-fg-mute mb-2">حقوق النشر (يُسبق تلقائياً بـ © والسنة)</label>
-          <input v-model="footer.copyrightLine" type="text" class="input-field" placeholder="منصة الفن. جميع الحقوق محفوظة.">
+          <input v-model="footer.copyrightLine" type="text" class="input-field" placeholder="مرتضى ثامر. جميع الحقوق محفوظة.">
         </div>
         <div>
           <div class="flex justify-between items-center mb-2">
@@ -111,7 +111,7 @@ const siteStore = useSiteSettingsStore()
 function emptyFooter() {
   return {
     brandLetter: 'ف',
-    brandTitle: 'منصة الفن',
+    brandTitle: 'مرتضى ثامر',
     brandDescription:
       'منصة عربية متخصصة للفنون البصرية والتعليم الإبداعي. استكشف أعمال الفنانين وتعلم مهاراتك من أفضل الأساتذة.',
     socialIcons: [
@@ -140,7 +140,7 @@ function emptyFooter() {
         ]
       }
     ],
-    copyrightLine: 'منصة الفن. جميع الحقوق محفوظة.',
+    copyrightLine: 'مرتضى ثامر. جميع الحقوق محفوظة.',
     legalLinks: [
       { label: 'سياسة الخصوصية', href: '/privacy' },
       { label: 'شروط الاستخدام', href: '/terms' }

@@ -1,0 +1,12 @@
+# عدّل نطاق الـ Sitemap ليطابق نشرك الفعلي (أو أنشئ sitemap ديناميكياً من السيرفر)
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /profile
+Disallow: /my-courses
+Disallow: /courses/*/learn
+
+Sitemap: https://murtada-thamer.com/sitemap.xml

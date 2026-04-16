@@ -197,10 +197,10 @@ public class SettingsController : ControllerBase
         return new PublicSiteSettingsDto
         {
             SiteLogoUrl = await Get("site_logo_url", ""),
-            SiteName = await Get("site_name", "منصة الفن"),
+            SiteName = await Get("site_name", "مرتضى ثامر"),
             SiteDescription = await Get("site_description", "منصة للفنون والتعلم"),
             ContactEmail = await Get("contact_email", "info@artplatform.com"),
-            HeroTitle = await Get("hero_title", "استكشف عالم الفن"),
+            HeroTitle = await Get("hero_title", "استكشف مرتضى ثامر"),
             HeroSubtitle = await Get("hero_subtitle", "تعلم، استلهم، وأبدع مع أفضل الفنانين"),
             HomePage = home,
             ContactPage = contact,

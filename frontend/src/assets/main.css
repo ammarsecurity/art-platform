@@ -81,6 +81,15 @@
     @apply inline-flex items-center gap-2 px-4 py-2 text-fg-soft hover:text-fg transition-colors duration-200;
   }
 
+  /* صورة تملأ حاوية مطلقة (تجاوز base: img { max-width:100%; height:auto } لتفادي فراغات جانبية/سفلية) */
+  .img-fill-cover {
+    max-width: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100%;
+    object-fit: cover;
+  }
+
   /* Cards */
   .card {
     @apply bg-surface rounded-2xl overflow-hidden border border-line transition-all duration-300 hover:border-gold/40 hover:shadow-xl hover:shadow-black/15 dark:hover:shadow-black/40;
